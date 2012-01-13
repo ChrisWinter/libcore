@@ -94,7 +94,7 @@ static int darray_maybe_resize(DArray *darray, long nitems)
     new_data = realloc(darray->data, (darray->element_size * new_capacity));
 
     if(NULL == new_data) {
-        fprintf(stderr, "Out of memory (%s:%d)\n", __PRETTY_FUNCTION__, __LINE__);
+        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
         return -1;
     }
 
@@ -201,7 +201,7 @@ void* darray_index(DArray *darray, unsigned long index)
 /*
  * Complexity: O(end_index - start_index)
  *
- * Note: Caller is responsible for destroying returned DDArray.
+ * Note: Caller is responsible for destroying returned DArray.
  */
 DArray* darray_slice(DArray *darray, unsigned long start_index, unsigned long end_index)
 {
@@ -222,7 +222,7 @@ DArray* darray_slice(DArray *darray, unsigned long start_index, unsigned long en
 
     ret->data = malloc(darray->element_size * new_length);
     if(NULL == ret->data) {
-        fprintf(stderr, "Out of memory (%s:%d)\n", __PRETTY_FUNCTION__, __LINE__);
+        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
         return NULL;
     }
 
