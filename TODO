@@ -1,0 +1,13 @@
+DArray
+======
+ * darray_prepend: reserve extra capacity at the front of
+   the internal array to amortize the cost of prepending
+   elements.
+
+Build System
+============
+ * Enhance to build shared and static libraries
+
+Testing
+=======
+ * Find suitable C unit test framework
