@@ -1,9 +1,9 @@
 /* Copyright (c) 2012, Chris Winter <wintercni@gmail.com>
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
  *    2. Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *    3. Neither the name of the copyright holder nor the
  *       names of contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -58,7 +58,7 @@ DArray* darray_create(size_t element_size)
     return a;
 }
 
-void darray_destroy(DArray *darray)
+void darray_free(DArray *darray)
 {
     if(darray != NULL) {
         if(darray->data != NULL) {
@@ -144,7 +144,7 @@ int darray_prepend(DArray *darray, const void *data)
     return 0;
 }
 
-/* Complexity: O(length - index) */
+/* Complexity: O(n), worst-case */
 int darray_insert(DArray *darray, unsigned long index, const void *data)
 {
     assert(darray != NULL);
@@ -167,7 +167,7 @@ int darray_insert(DArray *darray, unsigned long index, const void *data)
     return 0;
 }
 
-/* Complexity: O(length - index - 1) */
+/* Complexity: O(n), worst-case */
 int darray_remove(DArray *darray, unsigned long index)
 {
     assert(darray != NULL);
@@ -199,17 +199,17 @@ void* darray_index(DArray *darray, unsigned long index)
 }
 
 /*
- * Complexity: O(end_index - start_index)
+ * Complexity: O(n), worst-case
  *
- * Note: Caller is responsible for destroying returned DArray.
+ * Note: Caller is responsible for freeing returned DArray.
  */
 DArray* darray_slice(DArray *darray, unsigned long start_index, unsigned long end_index)
 {
     DArray *ret;
-    unsigned long new_length;
+    unsigned long new_length, new_capacity;
 
     assert(darray != NULL);
-    assert(start_index <= end_index);
+    assert(start_index < end_index);
     assert(end_index < darray->length);
     
     /* Can't slice a zero length darray */
@@ -219,8 +219,9 @@ DArray* darray_slice(DArray *darray, unsigned long start_index, unsigned long en
     /* Set up the new DArray */
     ret = darray_create(darray->element_size);
     new_length = end_index - start_index;
+    new_capacity = new_length + DARRAY_MIN_SIZE;
 
-    ret->data = malloc(darray->element_size * new_length);
+    ret->data = malloc(darray->element_size * new_capacity);
     if(NULL == ret->data) {
         fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
         return NULL;
@@ -232,7 +233,7 @@ DArray* darray_slice(DArray *darray, unsigned long start_index, unsigned long en
         darray->element_size * new_length);
 
     ret->length = new_length;
-    ret->capacity = darray->element_size * new_length;
+    ret->capacity = new_capacity;
 
     return ret;
 }
@@ -241,12 +242,12 @@ unsigned long darray_get_length(DArray *darray)
 {
     assert(darray != NULL);
 
-    return darray->length;
+    return (darray->length);
 }
 
 unsigned long darray_get_capacity(DArray *darray)
 {
     assert(darray != NULL);
 
-    return (darray->capacity / darray->element_size);
+    return (darray->capacity);
 }
