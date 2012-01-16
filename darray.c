@@ -209,7 +209,7 @@ DArray* darray_slice(DArray *darray, unsigned long start_index, unsigned long en
     unsigned long new_length, new_capacity;
 
     assert(darray != NULL);
-    assert(start_index < end_index);
+    assert(start_index <= end_index);
     assert(end_index < darray->length);
     
     /* Can't slice a zero length darray */
@@ -218,7 +218,7 @@ DArray* darray_slice(DArray *darray, unsigned long start_index, unsigned long en
 
     /* Set up the new DArray */
     ret = darray_create(darray->element_size);
-    new_length = end_index - start_index;
+    new_length = end_index - start_index + 1;
     new_capacity = new_length + DARRAY_MIN_SIZE;
 
     ret->data = malloc(darray->element_size * new_capacity);
