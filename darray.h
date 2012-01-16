@@ -39,7 +39,7 @@ DArray* darray_create(size_t element_size);
 void darray_free(DArray *darray);
 int darray_append(DArray *darray, const void *data);
 int darray_prepend(DArray *darray, const void *data);
-int darray_insert(DArray *darray, unsigned long index, const void *data);
+int darray_insert(DArray *darray, const void *data, unsigned long index);
 int darray_remove(DArray *darray, unsigned long index);
 void* darray_index(DArray *darray, unsigned long index);
 DArray* darray_slice(DArray *darray, unsigned long start_index, unsigned long end_index);

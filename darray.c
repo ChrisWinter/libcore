@@ -145,7 +145,7 @@ int darray_prepend(DArray *darray, const void *data)
 }
 
 /* Complexity: O(n), worst-case */
-int darray_insert(DArray *darray, unsigned long index, const void *data)
+int darray_insert(DArray *darray, const void *data, unsigned long index)
 {
     assert(darray != NULL);
     assert(data != NULL);

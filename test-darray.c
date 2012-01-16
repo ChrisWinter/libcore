@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     printf("a[0]: %d\n", *(int *)darray_index(a, 0));
     
     i = 12345;
-    darray_insert(a, 0, &i);
+    darray_insert(a, &i, 0);
 
     printf("Array length: %lu\n", darray_get_length(a));
     printf("Array capacity: %lu\n", darray_get_capacity(a));
