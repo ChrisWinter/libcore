@@ -33,7 +33,7 @@
 
 int main(int argc, char *argv[])
 {
-    DArray *a, *b;
+    DArray *a;
     int i, *ip;
 
     a = darray_create();
@@ -89,14 +89,7 @@ int main(int argc, char *argv[])
     printf("Array capacity: %lu\n", darray_get_capacity(a));
     printf("a[0]: %d\n", *(int *)darray_index(a, 0));
 
-    b = darray_slice(a, 0, 10);
-    printf("Array length: %lu\n", darray_get_length(b));
-    printf("Array capacity: %lu\n", darray_get_capacity(b));
-    printf("b[0]: %d\n", *(int *)darray_index(b, 0));
-    printf("b[length-1]: %d\n", *(int *)darray_index(b, darray_get_length(b) - 1));
-
     darray_free_all(a);
-    darray_free(b);
 
     return 0;
 }

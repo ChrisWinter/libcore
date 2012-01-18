@@ -231,46 +231,6 @@ void* darray_index(DArray *darray, unsigned long index)
     return (darray->data[index]);
 }
 
-/*
- * Complexity: O(n), worst-case
- *
- * Note: Caller is responsible for freeing returned DArray.
- */
-DArray* darray_slice(DArray *darray, unsigned long start_index, unsigned long end_index)
-{
-    DArray *ret;
-    unsigned long new_length, new_capacity;
-
-    assert(darray != NULL);
-    assert(darray->data != NULL);
-    assert(start_index <= end_index);
-    assert(end_index < darray->length);
-    
-    /* Can't slice a zero length darray */
-    if(0 == darray->length) {
-        return NULL;
-    }
-
-    /* Set up the new DArray */
-    ret = darray_create();
-    new_length = end_index - start_index + 1;
-    new_capacity = new_length + DARRAY_MIN_SIZE;
-
-    ret->data = malloc(SIZE_OF_VOIDP * new_capacity);
-    if(NULL == ret->data) {
-        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
-        return NULL;
-    }
-
-    /* Copy over the slice pointers */
-    memcpy(ret->data, &darray->data[start_index], SIZE_OF_VOIDP * new_length);
-
-    ret->length = new_length;
-    ret->capacity = new_capacity;
-
-    return ret;
-}
-
 unsigned long darray_get_length(DArray *darray)
 {
     assert(darray != NULL);
