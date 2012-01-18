@@ -27,44 +27,63 @@
 
 #include <stdio.h>
 
+#include <stdlib.h>
+
 #include "darray.h"
 
 int main(int argc, char *argv[])
 {
     DArray *a, *b;
-    int i;
+    int i, *ip;
 
-    a = darray_create(sizeof(int));
+    a = darray_create();
 
     /* Add a bunch of ints */
     for(i = 0; i < 100000; i++) {
-        darray_append(a, &i);
+        ip = malloc(sizeof(int));
+        if(ip != NULL) {
+            *ip = i;
+            darray_append(a, ip);
+        }
     }
 
     printf("Array length: %lu\n", darray_get_length(a));
     printf("Array capacity: %lu\n", darray_get_capacity(a));
     printf("a[0]: %d\n", *(int *)darray_index(a, 0));
+    printf("a[1]: %d\n", *(int *)darray_index(a, 1));
+    printf("a[2]: %d\n", *(int *)darray_index(a, 2));
 
     /* Remove some elements */
     for(i = 100000 - 1; i > 50000; i--) {
-        darray_remove(a, i);
-    }
-
-    printf("Array length: %lu\n", darray_get_length(a));
-    printf("Array capacity: %lu\n", darray_get_capacity(a));
-    printf("a[0]: %d\n", *(int *)darray_index(a, 0));
-
-    /* prepend a bunch of ints */
-    for(i = 0; i < 5000; i++) {
-        darray_prepend(a, &i);
+        ip = darray_remove(a, i);
+        free(ip);
     }
 
     printf("Array length: %lu\n", darray_get_length(a));
     printf("Array capacity: %lu\n", darray_get_capacity(a));
     printf("a[0]: %d\n", *(int *)darray_index(a, 0));
     
-    i = 12345;
-    darray_insert(a, &i, 0);
+    darray_free_all(a);
+    a = darray_create();
+
+    /* prepend a bunch of ints */
+    for(i = 0; i < 5000; i++) {
+        ip = malloc(sizeof(int));
+        if(ip != NULL) {
+            *ip = i;
+            darray_prepend(a, ip);
+        }
+    }
+
+    printf("Array length: %lu\n", darray_get_length(a));
+    printf("Array capacity: %lu\n", darray_get_capacity(a));
+    printf("a[0]: %d\n", *(int *)darray_index(a, 0));
+
+    ip = malloc(sizeof(int));
+    if(ip != NULL) {
+        *ip = 12345;
+        darray_insert(a, ip, 0);
+    }
 
     printf("Array length: %lu\n", darray_get_length(a));
     printf("Array capacity: %lu\n", darray_get_capacity(a));
@@ -76,7 +95,8 @@ int main(int argc, char *argv[])
     printf("b[0]: %d\n", *(int *)darray_index(b, 0));
     printf("b[length-1]: %d\n", *(int *)darray_index(b, darray_get_length(b) - 1));
 
-    darray_free(a);
+    darray_free_all(a);
+    darray_free(b);
 
     return 0;
 }

@@ -35,16 +35,20 @@ extern "C" {
 /* Opaque forward declaration */
 typedef struct _darray DArray;
 
-DArray* darray_create(size_t element_size);
-void darray_free(DArray *darray);
-int darray_append(DArray *darray, const void *data);
-int darray_prepend(DArray *darray, const void *data);
-int darray_insert(DArray *darray, const void *data, unsigned long index);
-int darray_remove(DArray *darray, unsigned long index);
-void* darray_index(DArray *darray, unsigned long index);
-DArray* darray_slice(DArray *darray, unsigned long start_index, unsigned long end_index);
-unsigned long darray_get_length(DArray *darray);
-unsigned long darray_get_capacity(DArray *darray);
+DArray* darray_create   (void);
+void    darray_free     (DArray *darray);
+void    darray_free_all (DArray *darray);
+int     darray_append   (DArray *darray, void *data);
+int     darray_prepend  (DArray *darray, void *data);
+int     darray_insert   (DArray *darray, void *data,
+                         unsigned long index);
+void*   darray_remove   (DArray *darray, unsigned long index);
+void*   darray_index    (DArray *darray, unsigned long index);
+DArray* darray_slice    (DArray *darray, unsigned long start_index,
+                         unsigned long end_index);
+
+unsigned long darray_get_length     (DArray *darray);
+unsigned long darray_get_capacity   (DArray *darray);
 
 #if __cplusplus
 }
