@@ -44,6 +44,7 @@ int     darray_insert   (DArray *darray, void *data,
                          unsigned long index);
 void*   darray_remove   (DArray *darray, unsigned long index);
 void*   darray_index    (DArray *darray, unsigned long index);
+int     darray_is_empty (DArray *darray);
 
 unsigned long darray_get_length     (DArray *darray);
 unsigned long darray_get_capacity   (DArray *darray);

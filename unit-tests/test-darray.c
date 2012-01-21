@@ -39,6 +39,7 @@ void test_darray_create(void)
     a = darray_create();
 
     assert_true(a != NULL);
+    assert_true(darray_is_empty(a));
     assert_true(darray_get_length(a) == 0);
     assert_true(darray_get_capacity(a) == 0);
 
@@ -52,6 +53,7 @@ void test_darray_append(void)
 
     a = darray_create();
     assert_true(a != NULL);
+    assert_true(darray_is_empty(a));
 
     for(i = 0; i < 100; i++) {
         val = malloc(sizeof(unsigned long));
@@ -66,6 +68,7 @@ void test_darray_append(void)
         }
     }
 
+    assert_false(darray_is_empty(a));
     assert_true(darray_get_length(a) == 100);
     assert_true(darray_get_capacity(a) >= 100);
 
@@ -83,6 +86,8 @@ void test_darray_index(void)
 {
     unsigned long i, *val;
 
+    assert_false(darray_is_empty(a));
+
     for(i = 0; i < 100000; i++) {
         val = darray_index(a, i);
         assert_ulong_equal(i, *val);
@@ -99,6 +104,7 @@ void test_darray_prepend(void)
 
     a = darray_create();
     assert_true(a != NULL);
+    assert_true(darray_is_empty(a));
 
     for(i = 0; i < 100; i++) {
         val = malloc(sizeof(unsigned long));
@@ -113,6 +119,7 @@ void test_darray_prepend(void)
         }
     }
 
+    assert_false(darray_is_empty(a));
     assert_true(darray_get_length(a) == 100);
     assert_true(darray_get_capacity(a) >= 100);
 
@@ -133,6 +140,7 @@ void test_darray_insert(void)
 
     a = darray_create();
     assert_true(a != NULL);
+    assert_true(darray_is_empty(a));
 
     for(i = 0; i < 100; i++) {
         val = malloc(sizeof(unsigned long));
@@ -146,6 +154,7 @@ void test_darray_insert(void)
         }
     }
 
+    assert_false(darray_is_empty(a));
     assert_true(darray_get_length(a) == 100);
     assert_true(darray_get_capacity(a) >= 100);
 
@@ -155,6 +164,8 @@ void test_darray_insert(void)
 void test_darray_remove(void)
 {
     unsigned long i, *val;
+
+    assert_false(darray_is_empty(a));
 
     /* Remove from the end. Use do-while because of
      * loop counter i is unsigned long and we need
@@ -169,6 +180,7 @@ void test_darray_remove(void)
         assert_true(darray_get_capacity(a) >= darray_get_length(a));
     } while(i != 0);
 
+    assert_true(darray_is_empty(a));
     assert_true(darray_get_length(a) == 0);
     assert_true(darray_get_capacity(a) == 32);
 }
@@ -181,8 +193,9 @@ void darray_setup_ints(void)
     unsigned long i, *val;
 
     a = darray_create();
-
     assert_true(a != NULL);
+    assert_true(darray_is_empty(a));
+
     for(i = 0; i < 100000; i++) {
         val = malloc(sizeof(unsigned long));
         if(val != NULL) {

@@ -231,6 +231,15 @@ void* darray_index(DArray *darray, unsigned long index)
     return (darray->data[index]);
 }
 
+/* Complexity: O(1) */
+int darray_is_empty(DArray *darray)
+{
+    assert(darray != NULL);
+
+    return (darray->length == 0);
+}
+
+/* Complexity: O(1) */
 unsigned long darray_get_length(DArray *darray)
 {
     assert(darray != NULL);
@@ -238,6 +247,7 @@ unsigned long darray_get_length(DArray *darray)
     return (darray->length);
 }
 
+/* Complexity: O(1) */
 unsigned long darray_get_capacity(DArray *darray)
 {
     assert(darray != NULL);
