@@ -359,13 +359,13 @@ int run_tests(seatest_void_void tests)
 
 void seatest_show_help( void )
 {
-	printf("Usage: [-t <testname>] [-f <fixturename>] [-d] [help] [-v] [-m] [-k <marker>\r\n");
+	printf("Usage: [-t <testname>] [-f <fixturename>] [-d] [help] [-v] [-m] [-k <marker>]\r\n");
 	printf("Flags:\r\n");
 	printf("\thelp:\twill display this help\r\n");
 	printf("\t-t:\twill only run tests that match <testname>\r\n");
 	printf("\t-f:\twill only run fixtures that match <fixturename>\r\n");
 	printf("\t-d:\twill just display test names and fixtures without\r\n");
-	printf("\t-d:\trunning the test\r\n");
+	printf("\t   \trunning the test\r\n");
 	printf("\t-v:\twill print a more verbose version of the test run\r\n");
 	printf("\t-m:\twill print a machine readable format of the test run, ie :- \r\n");
 	printf("\t   \t<textfixture>,<testname>,<linenumber>,<testresult><EOL>\r\n");
