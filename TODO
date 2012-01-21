@@ -1,13 +1,19 @@
 DArray
-======
- * darray_prepend: reserve extra capacity at the front of
-   the internal array to amortize the cost of prepending
-   elements.
+    * darray_prepend: reserve extra capacity at the front of
+      the internal array to amortize the cost of prepending
+      elements.
+    * darray_slice: figure out the semantics of slices, and
+      then add this functionality back.
+
+Error Handling
+    * Asserts: add build-time switch to turn asserts off. This
+      would have to then enable alternate logic that would
+      gracefully fail instead of blowing up the program.
+
+Memory Management
+    * Add a slab allocator to enhance memory performance of
+      data structures
 
 Build System
-============
- * Enhance to build shared and static libraries
-
-Testing
-=======
- * Find suitable C unit test framework
+    * Enhance to build shared and static libraries
+    * Build-time configurations
