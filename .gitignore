@@ -3,3 +3,4 @@
 *.core
 
 test-darray
+test-slist

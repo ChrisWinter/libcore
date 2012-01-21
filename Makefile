@@ -35,14 +35,16 @@ LIBS =
 OBJS= \
 	ext/seatest/seatest.o \
 	utilities.o \
-	darray.o
+	darray.o \
+	slist.o
 
 all: $(OBJS) tests
 
 .PHONY: tests
 tests:
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-darray.c -o unit-tests/test-darray
+	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-slist.c -o unit-tests/test-slist
 
 .PHONY: clean
 clean:
-	rm *.o unit-tests/test-darray
+	rm *.o unit-tests/test-darray unit-tests/test-slist
