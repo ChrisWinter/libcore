@@ -46,8 +46,8 @@ void*   darray_remove   (DArray *darray, unsigned long index);
 void*   darray_index    (DArray *darray, unsigned long index);
 int     darray_is_empty (DArray *darray);
 
-unsigned long darray_get_length     (DArray *darray);
-unsigned long darray_get_capacity   (DArray *darray);
+unsigned long darray_length     (DArray *darray);
+unsigned long darray_capacity   (DArray *darray);
 
 #if __cplusplus
 }

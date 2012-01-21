@@ -240,7 +240,7 @@ int darray_is_empty(DArray *darray)
 }
 
 /* Complexity: O(1) */
-unsigned long darray_get_length(DArray *darray)
+unsigned long darray_length(DArray *darray)
 {
     assert(darray != NULL);
 
@@ -248,7 +248,7 @@ unsigned long darray_get_length(DArray *darray)
 }
 
 /* Complexity: O(1) */
-unsigned long darray_get_capacity(DArray *darray)
+unsigned long darray_capacity(DArray *darray)
 {
     assert(darray != NULL);
 
