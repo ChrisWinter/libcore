@@ -43,6 +43,36 @@ struct _slist {
 };
 
 void _slist_free(SList *slist, int free_data);
+struct _slist_node* get_node_at_index(SList *slist, unsigned long index);
+
+void _slist_free(SList *slist, int free_data)
+{
+    struct _slist_node *node;
+
+    for(node = slist->head; node != NULL; node = slist->head) {
+        if(free_data && node->data != NULL) {
+            free(node->data);
+        }
+        slist->head = node->next;
+        free(node);
+    }
+
+    free(slist);
+}
+
+struct _slist_node* get_node_before_index(SList *slist, unsigned long index)
+{
+    struct _slist_node *node;
+    unsigned long i;
+
+    for(node = slist->head, i = 0;
+            node != NULL && i < index;
+            node = node->next, i++) {
+        /* No body */
+    }
+
+    return node;
+}
 
 SList* slist_create(void)
 {
@@ -74,21 +104,6 @@ SList* slist_create(void)
     return new_list;
 }
 
-void _slist_free(SList *slist, int free_data)
-{
-    struct _slist_node *node;
-
-    for(node = slist->tail; node != slist->head; node = slist->head) {
-        if(free_data && node->data != NULL) {
-            free(node->data);
-        }
-        slist->head = node->next;
-        free(node);
-    }
-
-    free(slist);
-
-}
 /* Complexity: O(n) */
 void slist_free(SList *slist)
 {
@@ -127,7 +142,6 @@ int slist_prepend(SList *slist, void *data)
 int slist_insert(SList *slist, void *data, unsigned long index)
 {
     struct _slist_node *node, *new_node;
-    unsigned long i;
 
     assert(slist != NULL);
     assert(index <= slist->length);
@@ -145,14 +159,11 @@ int slist_insert(SList *slist, void *data, unsigned long index)
     if(index == slist->length) {
         node = slist->tail;
     } else {
-        /* Terminates with node pointing to the node
-         * at position index - 1
-         */
-        for(node = slist->head, i = 0;
-                node != NULL && i < index;
-                node = node->next, i++) {
-            /* No body */
-        }
+        node = get_node_before_index(slist, index);
+    }
+
+    if(NULL == node) {
+        return -1;
     }
 
     new_node->next = node->next;
@@ -172,7 +183,6 @@ int slist_insert(SList *slist, void *data, unsigned long index)
 void* slist_remove_index(SList *slist, unsigned long index)
 {
     struct _slist_node *node, *tmp;
-    unsigned long i;
     void *ret;
 
     assert(slist != NULL);
@@ -183,14 +193,7 @@ void* slist_remove_index(SList *slist, unsigned long index)
 
     ret = NULL;
 
-    /* Terminates with node pointing to the
-     * node at position index - 1
-     */
-    for(node = slist->head, i = 0;
-            node != NULL && i < index;
-            node = node->next, i++) {
-        /* No body */
-    }
+    node = get_node_before_index(slist, index);
 
     tmp = node->next;
     ret = tmp->data;
