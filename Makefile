@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 CC = gcc
-CFLAGS = -Wall -Werror -O2 -ansi -pedantic
+CFLAGS = -Wall -Werror -O2 -ansi -pedantic -g
 INCLUDES = -I./ -I/usr/local/include
 LIBS =
 
@@ -36,7 +36,8 @@ OBJS= \
 	ext/seatest/seatest.o \
 	utilities.o \
 	darray.o \
-	slist.o
+	slist.o \
+	dlist.o
 
 all: $(OBJS) tests
 
@@ -44,7 +45,8 @@ all: $(OBJS) tests
 tests:
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-darray.c -o unit-tests/test-darray
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-slist.c -o unit-tests/test-slist
+	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-dlist.c -o unit-tests/test-dlist
 
 .PHONY: clean
 clean:
-	rm *.o unit-tests/test-darray unit-tests/test-slist
+	rm *.o unit-tests/test-darray unit-tests/test-slist unit-tests/test-dlist
