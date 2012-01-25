@@ -263,10 +263,17 @@ void* slist_index(SList *slist, unsigned long index)
         return NULL;
     }
 
-    for(node = slist->head->next, i = 0;
-            node != NULL && i < index;
-            node = node->next, i++) {
-        /* No body */
+    /* Special case for indexing the last
+     * node in the list
+     */
+    if(index == slist->length - 1) {
+        node = slist->tail;
+    } else {
+        for(node = slist->head->next, i = 0;
+                node != NULL && i < index;
+                node = node->next, i++) {
+            /* No body */
+        }
     }
 
     return (node->data);
