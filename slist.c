@@ -32,41 +32,44 @@
 
 #include "slist.h"
 
+#define head(sl)    (sl)->nil->next
+
 struct _slist_node {
     void *data;
     struct _slist_node *next;
 };
 
 struct _slist {
-    struct _slist_node *head, *tail;
+    struct _slist_node *nil, *tail;
     unsigned long length;
 };
 
-void _slist_free(SList *slist, int free_data);
-struct _slist_node* get_node_at_index(SList *slist, unsigned long index);
+static void _slist_free(SList *slist, int free_data);
+static struct _slist_node* get_node_before_index(SList *slist, unsigned long index);
 
-void _slist_free(SList *slist, int free_data)
+static void _slist_free(SList *slist, int free_data)
 {
     struct _slist_node *node;
 
-    for(node = slist->head; node != NULL; node = slist->head) {
+    for(node = head(slist); node != slist->nil; node = head(slist)) {
         if(free_data && node->data != NULL) {
             free(node->data);
         }
-        slist->head = node->next;
+        head(slist) = node->next;
         free(node);
     }
 
+    free(slist->nil);
     free(slist);
 }
 
-struct _slist_node* get_node_before_index(SList *slist, unsigned long index)
+static struct _slist_node* get_node_before_index(SList *slist, unsigned long index)
 {
     struct _slist_node *node;
     unsigned long i;
 
-    for(node = slist->head, i = 0;
-            node != NULL && i < index;
+    for(node = slist->nil, i = 0;
+            node->next != slist->nil && i < index;
             node = node->next, i++) {
         /* No body */
     }
@@ -77,7 +80,7 @@ struct _slist_node* get_node_before_index(SList *slist, unsigned long index)
 SList* slist_create(void)
 {
     SList *new_list;
-    struct _slist_node *dummy;
+    struct _slist_node *sentinel;
 
     /* List container */
     new_list = malloc(sizeof(struct _slist));
@@ -86,18 +89,18 @@ SList* slist_create(void)
         return NULL;
     }
 
-    /* Sentinel dummy node */
-    dummy = malloc(sizeof(struct _slist_node));
-    if(NULL == dummy) {
+    /* Sentinel node */
+    sentinel = malloc(sizeof(struct _slist_node));
+    if(NULL == sentinel) {
         fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
         return NULL;
     }
 
-    dummy->data = NULL;
-    dummy->next = NULL;
+    sentinel->data = NULL;
+    sentinel->next = sentinel;
 
-    new_list->head = dummy;
-    new_list->tail = dummy;
+    new_list->nil  = sentinel;
+    new_list->tail = sentinel;
 
     new_list->length = 0;
 
@@ -125,16 +128,12 @@ void slist_free_all(SList *slist)
 /* Complexity: O(1) */
 int slist_append(SList *slist, void *data)
 {
-    assert(slist != NULL);
-
     return slist_insert(slist, data, slist->length);
 }
 
 /* Complexity: O(1) */
 int slist_prepend(SList *slist, void *data)
 {
-    assert(slist != NULL);
-
     return slist_insert(slist, data, 0);
 }
 
@@ -162,14 +161,12 @@ int slist_insert(SList *slist, void *data, unsigned long index)
         node = get_node_before_index(slist, index);
     }
 
-    if(NULL == node) {
-        return -1;
-    }
-
     new_node->next = node->next;
     node->next = new_node;
 
-    /* Update the tail if appending */
+    /* Update the tail if appending, or inserting
+     * into an empty list
+     */
     if(index == slist->length) {
         slist->tail = new_node;
     }
@@ -187,7 +184,7 @@ void* slist_remove_index(SList *slist, unsigned long index)
 
     assert(slist != NULL);
 
-    if(slist_is_empty(slist) || index >= slist->length) {
+    if(slist_is_empty(slist) || (index >= slist->length)) {
         return NULL;
     }
 
@@ -200,7 +197,7 @@ void* slist_remove_index(SList *slist, unsigned long index)
     node->next = tmp->next;
 
     /* Update tail if removing from end */
-    if(index == slist->length - 1) {
+    if(index == (slist->length - 1)) {
         slist->tail = node;
     }
 
@@ -221,16 +218,16 @@ int slist_remove_data(SList *slist, const void *data)
         return -1;
     }
 
-    /* Terminates either with node = NULL for an empty list,
-     * or with node pointing to the node at position index - 1
+    /* Terminates with node pointing to the node with
+     * matching data, or pointing to the sentinel node
      */
-    for(node = slist->head;
-            node->next != NULL && node->next->data != data;
+    for(node = slist->nil;
+            node->next != slist->nil && node->next->data != data;
             node = node->next) {
         /* No body */
     }
 
-    if(NULL == node->next) {
+    if(node->next == slist->nil) {
         /* Matching node not found */
         return -1;
     } else {
@@ -259,18 +256,18 @@ void* slist_index(SList *slist, unsigned long index)
     assert(slist != NULL);
     assert(index < slist->length);
 
-    if(slist_is_empty(slist) || index >= slist->length) {
+    if(slist_is_empty(slist) || (index >= slist->length)) {
         return NULL;
     }
 
     /* Special case for indexing the last
      * node in the list
      */
-    if(index == slist->length - 1) {
+    if(index == (slist->length - 1)) {
         node = slist->tail;
     } else {
-        for(node = slist->head->next, i = 0;
-                node != NULL && i < index;
+        for(node = head(slist), i = 0;
+                node != slist->nil && i < index;
                 node = node->next, i++) {
             /* No body */
         }
@@ -284,7 +281,8 @@ int slist_is_empty(SList *slist)
 {
     assert(slist != NULL);
 
-    return ((slist->length == 0) && (slist->head == slist->tail));
+    return ((slist->length == 0) &&
+            (slist->nil == slist->nil->next));
 }
 
 /* Complexity: O(1) */
