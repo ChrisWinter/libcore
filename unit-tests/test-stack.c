@@ -169,6 +169,8 @@ void test_stack_pop_existing(void)
     assert_true(val != NULL);
     assert_ulong_equal(999, *val);
     assert_true(stack_size(test_stack) == (old_size - 1));
+
+    free(val);
 }
 
 void test_stack_pop_until_empty(void)
