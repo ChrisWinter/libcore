@@ -96,7 +96,7 @@ void darray_free_all(DArray *darray)
 static int darray_maybe_resize(DArray *darray, long nitems)
 {
     void *new_data = NULL;
-    unsigned long new_capacity = 0;
+    unsigned long new_capacity = 0, pow2 = 0;
 
     if(0 == nitems) {
         return -1;
@@ -106,12 +106,21 @@ static int darray_maybe_resize(DArray *darray, long nitems)
      * capacity always starts off at zero.
      */
     if(nitems > 0) {
+        pow2 = util_pow2_next(darray->capacity + 1);
         if((darray->size + nitems) >= darray->capacity) {
-            new_capacity = MAX(darray->capacity * 2, DARRAY_MIN_SIZE);
+            new_capacity = MAX(pow2, DARRAY_MIN_SIZE);
         }
     } else {
-        if((darray->size + nitems) < (darray->capacity / 2)) {
-            new_capacity = MAX(darray->capacity / 2, DARRAY_MIN_SIZE);
+        pow2 = util_pow2_prev(darray->capacity - 1);
+        /* Note: nitems is negative here */
+        if((darray->size + nitems) < (pow2 >> 1)) {
+            /* Only downsize if darray size is substantially
+             * smaller than the previous power of 2 of our
+             * current capacity. This attempts to eliminiate
+             * excessive resizing if darray size just hovers
+             * around a power of 2 boundary.
+             */
+            new_capacity = MAX(pow2, DARRAY_MIN_SIZE);
         }
     }
 
