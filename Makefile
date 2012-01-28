@@ -39,7 +39,8 @@ OBJS= \
 	slist.o \
 	dlist.o \
 	stack.o \
-	queue.o
+	queue.o \
+	deque.o
 
 all: $(OBJS) tests
 
@@ -50,6 +51,7 @@ tests:
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-dlist.c -o unit-tests/test-dlist
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-stack.c -o unit-tests/test-stack
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-queue.c -o unit-tests/test-queue
+	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-deque.c -o unit-tests/test-deque
 
 .PHONY: clean
 clean:
@@ -58,4 +60,5 @@ clean:
 		unit-tests/test-slist \
 		unit-tests/test-dlist \
 		unit-tests/test-stack \
-		unit-tests/test-queue
+		unit-tests/test-queue \
+		unit-tests/test-deque
