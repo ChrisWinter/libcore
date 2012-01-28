@@ -6,3 +6,4 @@ test-darray
 test-slist
 test-dlist
 test-stack
+test-queue
