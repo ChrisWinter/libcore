@@ -37,7 +37,8 @@ OBJS= \
 	utilities.o \
 	darray.o \
 	slist.o \
-	dlist.o
+	dlist.o \
+	stack.o
 
 all: $(OBJS) tests
 
@@ -46,7 +47,12 @@ tests:
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-darray.c -o unit-tests/test-darray
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-slist.c -o unit-tests/test-slist
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-dlist.c -o unit-tests/test-dlist
+	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-stack.c -o unit-tests/test-stack
 
 .PHONY: clean
 clean:
-	rm *.o unit-tests/test-darray unit-tests/test-slist unit-tests/test-dlist
+	rm *.o \
+		unit-tests/test-darray \
+		unit-tests/test-slist \
+		unit-tests/test-dlist \
+		unit-tests/test-stack
