@@ -169,6 +169,8 @@ void test_queue_dequeue_existing(void)
     assert_true(val != NULL);
     assert_ulong_equal(0, *val);
     assert_true(queue_size(test_queue) == (old_size - 1));
+
+    free(val);
 }
 
 void test_queue_dequeue_until_empty(void)
