@@ -41,7 +41,7 @@ struct _slist_node {
 
 struct _slist {
     struct _slist_node *nil, *tail;
-    unsigned long length;
+    unsigned long size;
 };
 
 static void _slist_free(SList *slist, int free_data);
@@ -102,7 +102,7 @@ SList* slist_create(void)
     new_list->nil  = sentinel;
     new_list->tail = sentinel;
 
-    new_list->length = 0;
+    new_list->size = 0;
 
     return new_list;
 }
@@ -128,7 +128,7 @@ void slist_free_all(SList *slist)
 /* Complexity: O(1) */
 int slist_append(SList *slist, void *data)
 {
-    return slist_insert(slist, data, slist->length);
+    return slist_insert(slist, data, slist->size);
 }
 
 /* Complexity: O(1) */
@@ -143,7 +143,7 @@ int slist_insert(SList *slist, void *data, unsigned long index)
     struct _slist_node *node, *new_node;
 
     assert(slist != NULL);
-    assert(index <= slist->length);
+    assert(index <= slist->size);
 
     new_node = malloc(sizeof(struct _slist_node));
     if(NULL == new_node) {
@@ -155,7 +155,7 @@ int slist_insert(SList *slist, void *data, unsigned long index)
     new_node->next = NULL;
 
     /* Special case for append */
-    if(index == slist->length) {
+    if(index == slist->size) {
         node = slist->tail;
     } else {
         node = get_node_before_index(slist, index);
@@ -167,11 +167,11 @@ int slist_insert(SList *slist, void *data, unsigned long index)
     /* Update the tail if appending, or inserting
      * into an empty list
      */
-    if(index == slist->length) {
+    if(index == slist->size) {
         slist->tail = new_node;
     }
 
-    slist->length++;
+    slist->size++;
 
     return 0;
 }
@@ -184,7 +184,7 @@ void* slist_remove_index(SList *slist, unsigned long index)
 
     assert(slist != NULL);
 
-    if(slist_is_empty(slist) || (index >= slist->length)) {
+    if(slist_is_empty(slist) || (index >= slist->size)) {
         return NULL;
     }
 
@@ -197,12 +197,12 @@ void* slist_remove_index(SList *slist, unsigned long index)
     node->next = tmp->next;
 
     /* Update tail if removing from end */
-    if(index == (slist->length - 1)) {
+    if(index == (slist->size - 1)) {
         slist->tail = node;
     }
 
     free(tmp);
-    slist->length--;
+    slist->size--;
 
     return ret;
 }
@@ -241,7 +241,7 @@ int slist_remove_data(SList *slist, const void *data)
         }
 
         free(tmp);
-        slist->length--;
+        slist->size--;
     }
 
     return 0;
@@ -254,16 +254,15 @@ void* slist_index(SList *slist, unsigned long index)
     unsigned long i;
 
     assert(slist != NULL);
-    assert(index < slist->length);
 
-    if(slist_is_empty(slist) || (index >= slist->length)) {
+    if(slist_is_empty(slist) || (index >= slist->size)) {
         return NULL;
     }
 
     /* Special case for indexing the last
      * node in the list
      */
-    if(index == (slist->length - 1)) {
+    if(index == (slist->size - 1)) {
         node = slist->tail;
     } else {
         for(node = head(slist), i = 0;
@@ -281,14 +280,14 @@ int slist_is_empty(SList *slist)
 {
     assert(slist != NULL);
 
-    return ((slist->length == 0) &&
+    return ((slist->size == 0) &&
             (slist->nil == slist->nil->next));
 }
 
 /* Complexity: O(1) */
-unsigned long slist_length(SList *slist)
+unsigned long slist_size(SList *slist)
 {
     assert(slist != NULL);
 
-    return (slist->length);
+    return (slist->size);
 }

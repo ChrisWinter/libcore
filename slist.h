@@ -47,7 +47,7 @@ int     slist_remove_data   (SList *slist, const void *data);
 void*   slist_index         (SList *slist, unsigned long index);
 int     slist_is_empty      (SList *slist);
 
-unsigned long slist_length  (SList *slist);
+unsigned long slist_size    (SList *slist);
 
 #if __cplusplus
 }

@@ -73,7 +73,7 @@ void test_slist_create(void)
     test_slist = slist_create();
 
     assert_true(test_slist != NULL);
-    assert_true(slist_length(test_slist) == 0);
+    assert_true(slist_size(test_slist) == 0);
     assert_true(slist_is_empty(test_slist));
 
     slist_free(test_slist);
@@ -97,7 +97,7 @@ void test_slist_index(void)
     assert_ulong_equal(0, *val);
 
     /* Index the back */
-    val = slist_index(test_slist, slist_length(test_slist) - 1);
+    val = slist_index(test_slist, slist_size(test_slist) - 1);
     assert_ulong_equal(999, *val);
 
     /* Index some random place */
@@ -117,9 +117,9 @@ void test_fixture_slist_index(void)
 void test_slist_insert_at_front(void)
 {
     unsigned long *val;
-    unsigned long old_length;
+    unsigned long old_size;
 
-    old_length = slist_length(test_slist);
+    old_size = slist_size(test_slist);
     val = make_ulong_ptr(8888);
     assert_true(slist_insert(test_slist, val, 0) == 0);
 
@@ -127,39 +127,39 @@ void test_slist_insert_at_front(void)
     val = NULL;
     val = slist_index(test_slist, 0);
     assert_ulong_equal(8888, *val);
-    assert_true((old_length + 1) == slist_length(test_slist));
+    assert_true((old_size + 1) == slist_size(test_slist));
 }
 
 void test_slist_insert_at_back(void)
 {
     unsigned long *val;
-    unsigned long old_length;
+    unsigned long old_size;
 
-    old_length = slist_length(test_slist);
+    old_size = slist_size(test_slist);
     val = make_ulong_ptr(7777);
-    assert_true(slist_insert(test_slist, val, old_length) == 0);
+    assert_true(slist_insert(test_slist, val, old_size) == 0);
 
     /* Verify */
     val = NULL;
-    val = slist_index(test_slist, old_length);
+    val = slist_index(test_slist, old_size);
     assert_ulong_equal(7777, *val);
-    assert_true((old_length + 1) == slist_length(test_slist));
+    assert_true((old_size + 1) == slist_size(test_slist));
 }
 
 void test_slist_insert_in_middle(void)
 {
     unsigned long *val;
-    unsigned long old_length;
+    unsigned long old_size;
 
-    old_length = slist_length(test_slist);
+    old_size = slist_size(test_slist);
     val = make_ulong_ptr(6666);
-    assert_true(slist_insert(test_slist, val, old_length / 2) == 0);
+    assert_true(slist_insert(test_slist, val, old_size / 2) == 0);
 
     /* Verify */
     val = NULL;
-    val = slist_index(test_slist, old_length / 2);
+    val = slist_index(test_slist, old_size / 2);
     assert_ulong_equal(6666, *val);
-    assert_true((old_length + 1) == slist_length(test_slist));
+    assert_true((old_size + 1) == slist_size(test_slist));
 }
 
 void test_fixture_slist_insert(void)
@@ -194,7 +194,7 @@ void test_slist_append_to_empty(void)
     val = slist_index(test_slist, 0);
     assert_true(val != NULL);
     assert_ulong_equal(9999, *val);
-    assert_true(slist_length(test_slist) == 1);
+    assert_true(slist_size(test_slist) == 1);
 
     slist_free_all(test_slist);
     test_slist = NULL;
@@ -203,17 +203,17 @@ void test_slist_append_to_empty(void)
 void test_slist_append_to_existing(void)
 {
     unsigned long *val;
-    unsigned long old_length;
+    unsigned long old_size;
 
-    old_length = slist_length(test_slist);
+    old_size = slist_size(test_slist);
     val = make_ulong_ptr(7777);
     assert_true(slist_append(test_slist, val) == 0);
 
     /* Verify */
     val = NULL;
-    val = slist_index(test_slist, (slist_length(test_slist) - 1));
+    val = slist_index(test_slist, (slist_size(test_slist) - 1));
     assert_ulong_equal(7777, *val);
-    assert_true((old_length + 1) == slist_length(test_slist));
+    assert_true((old_size + 1) == slist_size(test_slist));
 }
 
 void test_fixture_slist_append(void)
@@ -251,7 +251,7 @@ void test_slist_prepend_to_empty(void)
     val = slist_index(test_slist, 0);
     assert_true(val != NULL);
     assert_ulong_equal(9999, *val);
-    assert_true(slist_length(test_slist) == 1);
+    assert_true(slist_size(test_slist) == 1);
 
     slist_free_all(test_slist);
     test_slist = NULL;
@@ -260,9 +260,9 @@ void test_slist_prepend_to_empty(void)
 void test_slist_prepend_to_existing(void)
 {
     unsigned long *val;
-    unsigned long old_length;
+    unsigned long old_size;
 
-    old_length = slist_length(test_slist);
+    old_size = slist_size(test_slist);
     val = make_ulong_ptr(7777);
     assert_true(slist_prepend(test_slist, val) == 0);
 
@@ -270,7 +270,7 @@ void test_slist_prepend_to_existing(void)
     val = NULL;
     val = slist_index(test_slist, 0);
     assert_ulong_equal(7777, *val);
-    assert_true((old_length + 1) == slist_length(test_slist));
+    assert_true((old_size + 1) == slist_size(test_slist));
 }
 
 void test_fixture_slist_prepend(void)
@@ -305,15 +305,15 @@ void test_slist_remove_index_from_empty(void)
 void test_slist_remove_index_from_existing(void)
 {
     unsigned long *val;
-    unsigned long old_length;
+    unsigned long old_size;
 
-    old_length = slist_length(test_slist);
+    old_size = slist_size(test_slist);
 
     /* Verify */
     val = NULL;
     val = slist_remove_index(test_slist, 0);
     assert_ulong_equal(0, *val);
-    assert_true((old_length - 1) == slist_length(test_slist));
+    assert_true((old_size - 1) == slist_size(test_slist));
 
     free(val);
 }
@@ -324,12 +324,12 @@ void test_slist_remove_index_from_existing_until_empty(void)
     unsigned long i;
 
     val = NULL;
-    i = slist_length(test_slist);
+    i = slist_size(test_slist);
     while(i > 0) {
         val = slist_remove_index(test_slist, --i);
         assert_true(val != NULL);
         assert_ulong_equal(i, *val);
-        assert_true(i == slist_length(test_slist));
+        assert_true(i == slist_size(test_slist));
     }
 
     assert_true(slist_is_empty(test_slist));
@@ -368,16 +368,16 @@ void test_slist_remove_data_from_empty(void)
 void test_slist_remove_data_from_existing(void)
 {
     unsigned long *val;
-    unsigned long old_length;
+    unsigned long old_size;
 
-    old_length = slist_length(test_slist);
+    old_size = slist_size(test_slist);
 
     val = NULL;
     val = slist_index(test_slist, 10);
     assert_true(val != NULL);
 
     assert_true(slist_remove_data(test_slist, val) == 0);
-    assert_true((old_length - 1) == slist_length(test_slist));
+    assert_true((old_size - 1) == slist_size(test_slist));
 }
 
 void test_slist_remove_data_from_existing_until_empty(void)
@@ -386,12 +386,12 @@ void test_slist_remove_data_from_existing_until_empty(void)
     unsigned long i;
 
     val = NULL;
-    i = slist_length(test_slist);
+    i = slist_size(test_slist);
     while(i > 0) {
         val = slist_index(test_slist, --i);
         assert_true(val != NULL);
         assert_true(slist_remove_data(test_slist, val) == 0);
-        assert_true(i == slist_length(test_slist));
+        assert_true(i == slist_size(test_slist));
     }
 
     assert_true(slist_is_empty(test_slist));
