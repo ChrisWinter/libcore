@@ -42,7 +42,7 @@ struct _dlist_node {
 
 struct _dlist {
     struct _dlist_node *nil;
-    unsigned long length;
+    unsigned long size;
 };
 
 static void _dlist_free(DList *dlist, int free_data);
@@ -77,14 +77,14 @@ static struct _dlist_node* get_node_at_index(DList *dlist, unsigned long index)
     /* Optimize starting position to reduce
      * complexity to O(n/2)
      */
-    if(index < (dlist->length / 2)) {
+    if(index < (dlist->size / 2)) {
         for(node = head(dlist), i = 0;
                 node != dlist->nil && i != index;
                 node = node->next, i++) {
             /* No body */
         }
     } else {
-        for(node = tail(dlist), i = (dlist->length - 1);
+        for(node = tail(dlist), i = (dlist->size - 1);
                 node != dlist->nil && i != index;
                 node = node->prev, i--) {
             /* No body */
@@ -119,7 +119,7 @@ DList* dlist_create(void)
 
     new_list->nil  = sentinel;
 
-    new_list->length = 0;
+    new_list->size = 0;
 
     return new_list;
 }
@@ -145,7 +145,7 @@ void dlist_free_all(DList *dlist)
 /* Complexity: O(1) */
 int dlist_append(DList *dlist, void *data)
 {
-    return dlist_insert(dlist, data, dlist->length);
+    return dlist_insert(dlist, data, dlist->size);
 }
 
 /* Complexity: O(1) */
@@ -160,7 +160,7 @@ int dlist_insert(DList *dlist, void *data, unsigned long index)
     struct _dlist_node *node, *new_node;
 
     assert(dlist != NULL);
-    assert(index <= dlist->length);
+    assert(index <= dlist->size);
 
     new_node = malloc(sizeof(struct _dlist_node));
     if(NULL == new_node) {
@@ -180,7 +180,7 @@ int dlist_insert(DList *dlist, void *data, unsigned long index)
     node->prev->next = new_node;
     node->prev = new_node;
 
-    dlist->length++;
+    dlist->size++;
 
     return 0;
 }
@@ -193,7 +193,7 @@ void* dlist_remove_index(DList *dlist, unsigned long index)
 
     assert(dlist != NULL);
 
-    if(dlist_is_empty(dlist) || (index >= dlist->length)) {
+    if(dlist_is_empty(dlist) || (index >= dlist->size)) {
         return NULL;
     }
 
@@ -208,7 +208,7 @@ void* dlist_remove_index(DList *dlist, unsigned long index)
     node->next->prev = node->prev;
 
     free(node);
-    dlist->length--;
+    dlist->size--;
 
     return ret;
 }
@@ -242,7 +242,7 @@ int dlist_remove_data(DList *dlist, const void *data)
         node->next->prev = node->prev;
 
         free(node);
-        dlist->length--;
+        dlist->size--;
     }
 
     return 0;
@@ -254,9 +254,8 @@ void* dlist_index(DList *dlist, unsigned long index)
     struct _dlist_node *node;
 
     assert(dlist != NULL);
-    assert(index < dlist->length);
 
-    if(dlist_is_empty(dlist) || (index >= dlist->length)) {
+    if(dlist_is_empty(dlist) || (index >= dlist->size)) {
         return NULL;
     }
 
@@ -273,14 +272,14 @@ int dlist_is_empty(DList *dlist)
 {
     assert(dlist != NULL);
 
-    return ((dlist->length == 0) &&
+    return ((dlist->size == 0) &&
             (head(dlist) == tail(dlist)));
 }
 
 /* Complexity: O(1) */
-unsigned long dlist_length(DList *dlist)
+unsigned long dlist_size(DList *dlist)
 {
     assert(dlist != NULL);
 
-    return (dlist->length);
+    return (dlist->size);
 }

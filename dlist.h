@@ -47,7 +47,7 @@ int     dlist_remove_data   (DList *dlist, const void *data);
 void*   dlist_index         (DList *dlist, unsigned long index);
 int     dlist_is_empty      (DList *dlist);
 
-unsigned long dlist_length  (DList *dlist);
+unsigned long dlist_size    (DList *dlist);
 
 #if __cplusplus
 }
