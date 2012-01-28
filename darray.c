@@ -38,7 +38,7 @@
 
 struct _darray {
     void **data;
-    unsigned long length;
+    unsigned long size;
     unsigned long capacity;
 };
 
@@ -51,7 +51,7 @@ DArray* darray_create(void)
     a = malloc(sizeof(DArray));
 
     a->data = NULL;
-    a->length = 0;
+    a->size = 0;
     a->capacity = 0;
 
     return a;
@@ -77,7 +77,7 @@ void darray_free_all(DArray *darray)
 
     if(darray != NULL) {
         if(darray->data != NULL) {
-            for(i = 0; i < darray->length; i++) {
+            for(i = 0; i < darray->size; i++) {
                 item = darray->data[i];
                 if(item != NULL) {
                     free(item);
@@ -106,11 +106,11 @@ static int darray_maybe_resize(DArray *darray, long nitems)
      * capacity always starts off at zero.
      */
     if(nitems > 0) {
-        if((darray->length + nitems) >= darray->capacity) {
+        if((darray->size + nitems) >= darray->capacity) {
             new_capacity = MAX(darray->capacity * 2, DARRAY_MIN_SIZE);
         }
     } else {
-        if((darray->length + nitems) < (darray->capacity / 2)) {
+        if((darray->size + nitems) < (darray->capacity / 2)) {
             new_capacity = MAX(darray->capacity / 2, DARRAY_MIN_SIZE);
         }
     }
@@ -142,7 +142,7 @@ int darray_append(DArray *darray, void *data)
         return -1;
     }
 
-    darray->data[darray->length++] = data;
+    darray->data[darray->size++] = data;
 
     return 0;
 }
@@ -159,15 +159,15 @@ int darray_prepend(DArray *darray, void *data)
         return -1;
     }
 
-    if(darray->length > 0) {
+    if(darray->size > 0) {
         memmove(&darray->data[1],
             darray->data,
-            SIZE_OF_VOIDP * darray->length);
+            SIZE_OF_VOIDP * darray->size);
     }
 
     darray->data[0] = data;
 
-    darray->length++;
+    darray->size++;
 
     return 0;
 }
@@ -177,21 +177,21 @@ int darray_insert(DArray *darray, void *data, unsigned long index)
 {
     assert(darray != NULL);
     assert(data != NULL);
-    assert(index <= darray->length);
+    assert(index <= darray->size);
 
     if(darray_maybe_resize(darray, 1) < 0) {
         return -1;
     }
 
-    if(darray->length > 0) {
+    if(darray->size > 0) {
         memmove(&darray->data[index + 1],
             &darray->data[index],
-            SIZE_OF_VOIDP * (darray->length - index));
+            SIZE_OF_VOIDP * (darray->size - index));
     }
 
     darray->data[index] = data;
 
-    darray->length++;
+    darray->size++;
 
     return 0;
 }
@@ -203,16 +203,16 @@ void* darray_remove(DArray *darray, unsigned long index)
 
     assert(darray != NULL);
     assert(darray->data != NULL);
-    assert(index < darray->length);
+    assert(index < darray->size);
 
     ret = darray->data[index];
 
     memmove(&darray->data[index + 1],
         &darray->data[index],
-        SIZE_OF_VOIDP * (darray->length - index - 1));
+        SIZE_OF_VOIDP * (darray->size - index - 1));
 
-    darray->data[darray->length - 1] = NULL;
-    darray->length--;
+    darray->data[darray->size - 1] = NULL;
+    darray->size--;
 
     if(darray_maybe_resize(darray, -1) < 0) {
         fprintf(stderr, "DArray resize failed (%s:%d)\n", __FUNCTION__, __LINE__);
@@ -226,7 +226,7 @@ void* darray_index(DArray *darray, unsigned long index)
 {
     assert(darray != NULL);
     assert(darray->data != NULL);
-    assert(index < darray->length);
+    assert(index < darray->size);
 
     return (darray->data[index]);
 }
@@ -236,15 +236,15 @@ int darray_is_empty(DArray *darray)
 {
     assert(darray != NULL);
 
-    return (darray->length == 0);
+    return (darray->size == 0);
 }
 
 /* Complexity: O(1) */
-unsigned long darray_length(DArray *darray)
+unsigned long darray_size(DArray *darray)
 {
     assert(darray != NULL);
 
-    return (darray->length);
+    return (darray->size);
 }
 
 /* Complexity: O(1) */

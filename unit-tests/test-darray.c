@@ -40,7 +40,7 @@ void test_darray_create(void)
 
     assert_true(a != NULL);
     assert_true(darray_is_empty(a));
-    assert_true(darray_length(a) == 0);
+    assert_true(darray_size(a) == 0);
     assert_true(darray_capacity(a) == 0);
 
     darray_free(a);
@@ -60,7 +60,7 @@ void test_darray_append(void)
         if(val != NULL) {
             *val = i;
             darray_append(a, val);
-            assert_true(darray_length(a) == (i + 1));
+            assert_true(darray_size(a) == (i + 1));
             assert_true(darray_capacity(a) >= i);
 
             val = darray_index(a, i);
@@ -69,14 +69,14 @@ void test_darray_append(void)
     }
 
     assert_false(darray_is_empty(a));
-    assert_true(darray_length(a) == 100);
+    assert_true(darray_size(a) == 100);
     assert_true(darray_capacity(a) >= 100);
 
     /* Sanity check end values */
     val = darray_index(a, 0);
     assert_ulong_equal(0, *val);
 
-    val = darray_index(a, darray_length(a) - 1);
+    val = darray_index(a, darray_size(a) - 1);
     assert_ulong_equal(99, *val);
 
     darray_free_all(a);
@@ -93,7 +93,7 @@ void test_darray_index(void)
         assert_ulong_equal(i, *val);
     }
 
-    assert_true(darray_length(a) == 100000);
+    assert_true(darray_size(a) == 100000);
     assert_true(darray_capacity(a) >= 100000);
 }
 
@@ -111,7 +111,7 @@ void test_darray_prepend(void)
         if(val != NULL) {
             *val = i;
             darray_prepend(a, val);
-            assert_true(darray_length(a) == (i + 1));
+            assert_true(darray_size(a) == (i + 1));
             assert_true(darray_capacity(a) >= i);
 
             val = darray_index(a, 0);
@@ -120,14 +120,14 @@ void test_darray_prepend(void)
     }
 
     assert_false(darray_is_empty(a));
-    assert_true(darray_length(a) == 100);
+    assert_true(darray_size(a) == 100);
     assert_true(darray_capacity(a) >= 100);
 
     /* Sanity check end values */
     val = darray_index(a, 0);
     assert_ulong_equal(99, *val);
 
-    val = darray_index(a, darray_length(a) - 1);
+    val = darray_index(a, darray_size(a) - 1);
     assert_ulong_equal(0, *val);
 
     darray_free_all(a);
@@ -146,8 +146,8 @@ void test_darray_insert(void)
         val = malloc(sizeof(unsigned long));
         if(val != NULL) {
             *val = i;
-            darray_insert(a, val, darray_length(a));
-            assert_true(darray_length(a) == (i + 1));
+            darray_insert(a, val, darray_size(a));
+            assert_true(darray_size(a) == (i + 1));
 
             val = darray_index(a, i);
             assert_ulong_equal(i, *val);
@@ -155,7 +155,7 @@ void test_darray_insert(void)
     }
 
     assert_false(darray_is_empty(a));
-    assert_true(darray_length(a) == 100);
+    assert_true(darray_size(a) == 100);
     assert_true(darray_capacity(a) >= 100);
 
     darray_free_all(a);
@@ -171,17 +171,17 @@ void test_darray_remove(void)
      * loop counter i is unsigned long and we need
      * to count down to and remove the zeroth item
      */
-    i = darray_length(a);
+    i = darray_size(a);
     do {
         i--;
         val = darray_remove(a, i);
         free(val);
-        assert_true(darray_length(a) == i);
-        assert_true(darray_capacity(a) >= darray_length(a));
+        assert_true(darray_size(a) == i);
+        assert_true(darray_capacity(a) >= darray_size(a));
     } while(i != 0);
 
     assert_true(darray_is_empty(a));
-    assert_true(darray_length(a) == 0);
+    assert_true(darray_size(a) == 0);
     assert_true(darray_capacity(a) == 32);
 }
 
@@ -204,7 +204,7 @@ void darray_setup_ints(void)
         }
     }
 
-    assert_true(darray_length(a) == 100000);
+    assert_true(darray_size(a) == 100000);
 }
 
 void darray_teardown(void)
