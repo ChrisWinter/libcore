@@ -185,8 +185,10 @@ int darray_prepend(DArray *darray, void *data)
 int darray_insert(DArray *darray, void *data, unsigned long index)
 {
     assert(darray != NULL);
-    assert(data != NULL);
-    assert(index <= darray->size);
+
+    if(index > darray->size) {
+        return -1;
+    }
 
     if(darray_maybe_resize(darray, 1) < 0) {
         return -1;
@@ -238,6 +240,47 @@ void* darray_index(DArray *darray, unsigned long index)
     assert(index < darray->size);
 
     return (darray->data[index]);
+}
+
+/* Complexity: O(1) */
+int darray_replace(DArray *darray, unsigned long index, void *data)
+{
+    assert(darray != NULL);
+
+    if(darray_is_empty(darray) || index >= darray->size) {
+        return -1;
+    }
+
+    darray->data[index] = data;
+
+    return 0;
+}
+
+/* Complexity: O(1) */
+int darray_swap(DArray *darray, unsigned long index1, unsigned long index2)
+{
+    void *swp = NULL;
+
+    assert(darray != NULL);
+
+    if(darray_is_empty(darray) ||
+            index1 >= darray->size || index2 >= darray->size) {
+        return -1;
+    }
+
+    swp = darray_index(darray, index1);
+
+    if(darray_replace(darray, index1, darray_index(darray, index2)) < 0) {
+        return -1;
+    }
+
+    if(darray_replace(darray, index2, swp) < 0) {
+        /* Try to restore the darray to its original state */
+        darray_replace(darray, index1, swp);
+        return -1;
+    }
+
+    return 0;
 }
 
 /* Complexity: O(1) */

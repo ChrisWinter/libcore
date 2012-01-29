@@ -32,6 +32,18 @@
 
 static DArray *a;
 
+unsigned long* make_ulong_ptr(unsigned long value)
+{
+    unsigned long *val = NULL;
+
+    val = malloc(sizeof(unsigned long));
+    if(val != NULL) {
+        *val = value;
+    }
+
+    return val;
+}
+
 void test_darray_create(void)
 {
     DArray *a = NULL;
@@ -255,6 +267,132 @@ void test_fixture_darray_prepend(void)
     test_fixture_end();
 }
 
+
+void test_darray_replace_empty(void)
+{
+    unsigned long *val = NULL;
+
+    a = darray_create();
+
+    assert_true(a != NULL);
+    assert_true(darray_is_empty(a));
+    assert_true(darray_size(a) == 0);
+    assert_true(darray_capacity(a) == 0);
+
+    val = make_ulong_ptr(9999);
+    assert_true(val != NULL);
+
+    assert_true(darray_replace(a, 0, val) == -1);
+    assert_true(darray_replace(a, 100, val) == -1);
+
+    darray_free(a);
+    free(val);
+}
+
+void test_darray_replace_existing_at_front(void)
+{
+    unsigned long *val = NULL, *old = NULL;
+
+    assert_true(a != NULL);
+    assert_false(darray_is_empty(a));
+    assert_true(darray_capacity(a) >= darray_size(a));
+
+    val = make_ulong_ptr(9999);
+    assert_true(val != NULL);
+
+    old = darray_index(a, 0);
+    assert_true(darray_replace(a, 0, val) == 0);
+
+    free(old);
+
+    /* Verify */
+    assert_ulong_equal(*val, *(unsigned long *)darray_index(a, 0));
+}
+
+void test_darray_replace_existing_at_back(void)
+{
+    unsigned long *val = NULL, *old = NULL;
+
+    assert_true(a != NULL);
+    assert_false(darray_is_empty(a));
+    assert_true(darray_capacity(a) >= darray_size(a));
+
+    val = make_ulong_ptr(9999);
+    assert_true(val != NULL);
+
+    old = darray_index(a, darray_size(a) - 1);
+    assert_true(darray_replace(a, darray_size(a) - 1, val) == 0);
+
+    free(old);
+
+    /* Verify */
+    assert_ulong_equal(*val,
+        *(unsigned long *)darray_index(a, darray_size(a) - 1));
+}
+
+void test_fixture_darray_replace(void)
+{
+    test_fixture_start();
+
+    run_test(test_darray_replace_empty);
+
+    fixture_setup(darray_setup_ints);
+    fixture_teardown(darray_teardown);
+
+    run_test(test_darray_replace_existing_at_front);
+    run_test(test_darray_replace_existing_at_back);
+
+    test_fixture_end();
+}
+
+
+void test_darray_swap_empty(void)
+{
+    a = darray_create();
+
+    assert_true(a != NULL);
+    assert_true(darray_is_empty(a));
+    assert_true(darray_size(a) == 0);
+    assert_true(darray_capacity(a) == 0);
+
+    assert_true(darray_swap(a, 0, 1) == -1);
+    assert_true(darray_swap(a, 100, 1) == -1);
+
+    darray_free(a);
+}
+
+void test_darray_swap_existing(void)
+{
+    unsigned long *val1 = NULL, *val2 = NULL;
+
+    assert_true(a != NULL);
+    assert_false(darray_is_empty(a));
+    assert_true(darray_capacity(a) >= darray_size(a));
+
+    val1 = darray_index(a, 5);
+    val2 = darray_index(a, 10);
+
+    assert_true(darray_swap(a, 5, 10) == 0);
+
+    /* Verify */
+    assert_ulong_equal(*val1, *(unsigned long *)darray_index(a, 10));
+    assert_ulong_equal(*val2, *(unsigned long *)darray_index(a, 5));
+}
+
+void test_fixture_darray_swap(void)
+{
+    test_fixture_start();
+
+    run_test(test_darray_swap_empty);
+
+    fixture_setup(darray_setup_ints);
+    fixture_teardown(darray_teardown);
+
+    run_test(test_darray_swap_existing);
+
+    test_fixture_end();
+}
+
 void all_tests(void)
 {
     test_fixture_darray_create();
@@ -262,6 +400,8 @@ void all_tests(void)
     test_fixture_darray_prepend();
     test_fixture_darray_index();
     test_fixture_darray_remove();
+    test_fixture_darray_replace();
+    test_fixture_darray_swap();
 }
 
 int main(int argc, char *argv[])
