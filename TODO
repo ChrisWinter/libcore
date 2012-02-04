@@ -4,6 +4,21 @@ DArray
       elements.
     * darray_slice: figure out the semantics of slices, and
       then add this functionality back.
+    * Add iterators.
+
+SList
+    * Add sort
+    * Add merge
+    * Add concat
+    * Add reverse
+    * Add iterators
+
+DList
+    * Add sort
+    * Add merge
+    * Add concat
+    * Add reverse
+    * Add iterators
 
 Error Handling
     * Asserts: add build-time switch to turn asserts off. This
@@ -17,3 +32,7 @@ Memory Management
 Build System
     * Enhance to build shared and static libraries
     * Build-time configurations
+        - Debug
+        - Different backend implementations for
+          particular ADTs, e.g., array-based stack
+          instead of SList-based.
