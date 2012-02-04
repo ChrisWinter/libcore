@@ -30,7 +30,7 @@
 #include <seatest.h>
 #include <darray.h>
 
-static DArray *a;
+static DArray *a, *b;
 
 unsigned long* make_ulong_ptr(unsigned long value)
 {
@@ -42,6 +42,18 @@ unsigned long* make_ulong_ptr(unsigned long value)
     }
 
     return val;
+}
+
+/* a is greater than b if a is numerically less than b */
+int ulong_compare(const unsigned long *a, const unsigned long *b)
+{
+    if(*a < *b) {
+        return 1;
+    } else if(*a == *b) {
+        return 0;
+    } else {
+        return -1;
+    }
 }
 
 void test_darray_create(void)
@@ -209,9 +221,8 @@ void darray_setup_ints(void)
     assert_true(darray_is_empty(a));
 
     for(i = 0; i < 100000; i++) {
-        val = malloc(sizeof(unsigned long));
+        val = make_ulong_ptr(i);
         if(val != NULL) {
-            *val = i;
             darray_append(a, val);
         }
     }
@@ -219,10 +230,96 @@ void darray_setup_ints(void)
     assert_true(darray_size(a) == 100000);
 }
 
+void darray_setup_ints_random(void)
+{
+    unsigned long i, *val;
+
+    a = darray_create();
+    assert_true(a != NULL);
+    assert_true(darray_is_empty(a));
+
+    for(i = 0; i < 100000; i++) {
+        val = make_ulong_ptr(arc4random() % 100000);
+        if(val != NULL) {
+            darray_append(a, val);
+        }
+    }
+
+    assert_true(darray_size(a) == 100000);
+}
+
+void darray_double_setup_ints(void)
+{
+    unsigned long i, *val;
+
+    a = darray_create();
+    assert_true(a != NULL);
+    assert_true(darray_is_empty(a));
+
+    b = darray_create();
+    assert_true(b != NULL);
+    assert_true(darray_is_empty(b));
+
+    for(i = 0; i < 100000; i++) {
+        val = make_ulong_ptr(i);
+        if(val != NULL) {
+            darray_append(a, val);
+        }
+        val = make_ulong_ptr(i);
+        if(val != NULL) {
+            darray_append(b, val);
+        }
+    }
+
+    assert_true(darray_size(a) == 100000);
+    assert_true(darray_size(b) == 100000);
+}
+
+void darray_double_setup_random_ints(void)
+{
+    unsigned long i, *val;
+
+    a = darray_create();
+    assert_true(a != NULL);
+    assert_true(darray_is_empty(a));
+
+    b = darray_create();
+    assert_true(b != NULL);
+    assert_true(darray_is_empty(b));
+
+    for(i = 0; i < 100000; i++) {
+        val = make_ulong_ptr(arc4random() % 100000);
+        if(val != NULL) {
+            darray_append(a, val);
+        }
+        val = make_ulong_ptr(arc4random() % 100000);
+        if(val != NULL) {
+            darray_append(b, val);
+        }
+    }
+
+    assert_true(darray_size(a) == 100000);
+    assert_true(darray_size(b) == 100000);
+}
+
 void darray_teardown(void)
 {
     darray_free_all(a);
     a = NULL;
+}
+
+void darray_double_teardown(void)
+{
+    darray_free_all(a);
+    darray_free_all(b);
+    a = b = NULL;
+}
+
+void darray_double_teardown_concat_safe(void)
+{
+    darray_free_all(a);
+    darray_free(b);
+    a = b = NULL;
 }
 
 
@@ -393,6 +490,344 @@ void test_fixture_darray_swap(void)
     test_fixture_end();
 }
 
+
+void test_darray_concat_empty_with_empty(void)
+{
+    DArray *b;
+
+    a = darray_create();
+    b = darray_create();
+
+    assert_true(a != NULL);
+    assert_true(b != NULL);
+    assert_true(darray_is_empty(a));
+    assert_true(darray_is_empty(b));
+    assert_true(darray_size(a) == 0);
+    assert_true(darray_size(b) == 0);
+    assert_true(darray_capacity(a) == 0);
+    assert_true(darray_capacity(b) == 0);
+
+    assert_true(darray_concat(a, b) == 0);
+
+    /* Verify */
+    assert_true(darray_is_empty(a));
+    assert_true(darray_is_empty(b));
+    assert_true(darray_size(a) == 0);
+    assert_true(darray_size(b) == 0);
+    assert_true(darray_capacity(a) == 0);
+    assert_true(darray_capacity(b) == 0);
+
+    darray_free(a);
+    darray_free(b);
+}
+
+void test_darray_concat_existing_with_empty(void)
+{
+    unsigned long old_a_size, old_a_capacity;
+    DArray *b;
+
+    b = darray_create();
+
+    assert_true(a != NULL);
+    assert_true(b != NULL);
+
+    assert_false(darray_is_empty(a));
+    assert_true(darray_is_empty(b));
+
+    old_a_size = darray_size(a);
+    old_a_capacity = darray_capacity(a);
+
+    assert_true(darray_concat(a, b) == 0);
+
+    /* Verify */
+    assert_false(darray_is_empty(a));
+    assert_true(darray_is_empty(b));
+
+    assert_true(darray_size(a) == old_a_size);
+    assert_true(darray_size(b) == 0);
+
+    assert_true(darray_capacity(a) == old_a_capacity);
+    assert_true(darray_capacity(b) == 0);
+
+    darray_free(b);
+}
+
+void test_darray_concat_empty_with_existing(void)
+{
+    unsigned long old_a_size, old_a_capacity;
+    DArray *b;
+
+    b = darray_create();
+
+    assert_true(a != NULL);
+    assert_true(b != NULL);
+
+    assert_false(darray_is_empty(a));
+    assert_true(darray_is_empty(b));
+
+    old_a_size = darray_size(a);
+    old_a_capacity = darray_capacity(a);
+
+    assert_true(darray_concat(b, a) == 0);
+
+    /* Verify */
+    assert_false(darray_is_empty(a));
+    assert_false(darray_is_empty(b));
+
+    assert_true(darray_size(a) == old_a_size);
+    assert_true(darray_size(b) == darray_size(a));
+
+    assert_true(darray_capacity(a) == old_a_capacity);
+    assert_true(darray_capacity(b) == darray_capacity(a));
+
+    darray_free(b);
+}
+
+void test_darray_concat_existing_with_existing(void)
+{
+    unsigned long old_a_size, old_a_capacity;
+    unsigned long old_b_size, old_b_capacity;
+
+    assert_true(a != NULL);
+    assert_true(b != NULL);
+
+    assert_false(darray_is_empty(a));
+    assert_false(darray_is_empty(b));
+
+    old_a_size = darray_size(a);
+    old_a_capacity = darray_capacity(a);
+
+    old_b_size = darray_size(b);
+    old_b_capacity = darray_capacity(b);
+
+    assert_true(darray_concat(a, b) == 0);
+
+    /* Verify */
+    assert_false(darray_is_empty(a));
+    assert_false(darray_is_empty(b));
+
+    assert_true(darray_size(a) == (old_a_size + old_b_size));
+    assert_true(darray_size(b) == old_b_size);
+
+    assert_true(darray_capacity(a) >= darray_size(a));
+    assert_true(darray_capacity(b) == old_b_capacity);
+}
+
+void test_fixture_darray_concat(void)
+{
+    test_fixture_start();
+
+    run_test(test_darray_concat_empty_with_empty);
+
+    fixture_setup(darray_setup_ints);
+    fixture_teardown(darray_teardown);
+
+    run_test(test_darray_concat_existing_with_empty);
+    run_test(test_darray_concat_empty_with_existing);
+
+    fixture_setup(darray_double_setup_ints);
+    fixture_teardown(darray_double_teardown_concat_safe);
+
+    run_test(test_darray_concat_existing_with_existing);
+
+    test_fixture_end();
+}
+
+
+void test_darray_sort_empty(void)
+{
+    a = darray_create();
+
+    assert_true(a != NULL);
+    assert_true(darray_is_empty(a));
+    assert_true(darray_size(a) == 0);
+    assert_true(darray_capacity(a) == 0);
+
+    assert_true(darray_sort(a, (CompareFn)ulong_compare) == -1);
+
+    /* Verify */
+    assert_false(darray_is_sorted(a, (CompareFn)ulong_compare));
+
+    darray_free(a);
+}
+
+void test_darray_sort_existing(void)
+{
+    unsigned long old_size, old_capacity;
+
+    assert_true(a != NULL);
+    assert_false(darray_is_empty(a));
+
+    old_size = darray_size(a);
+    old_capacity = darray_capacity(a);
+
+    assert_true(darray_sort(a, (CompareFn)ulong_compare) == 0);
+
+    /* Verify */
+    assert_true(darray_is_sorted(a, (CompareFn)ulong_compare));
+    assert_true(darray_size(a) == old_size);
+    assert_true(darray_capacity(a) == old_capacity);
+}
+
+void test_fixture_darray_sort(void)
+{
+    test_fixture_start();
+
+    run_test(test_darray_sort_empty);
+
+    fixture_setup(darray_setup_ints_random);
+    fixture_teardown(darray_teardown);
+
+    run_test(test_darray_sort_existing);
+
+    test_fixture_end();
+}
+
+
+void test_darray_merge_empty_with_empty(void)
+{
+    DArray *b;
+
+    a = darray_create();
+    b = darray_create();
+
+    assert_true(a != NULL);
+    assert_true(b != NULL);
+    assert_true(darray_is_empty(a));
+    assert_true(darray_is_empty(b));
+    assert_true(darray_size(a) == 0);
+    assert_true(darray_size(b) == 0);
+    assert_true(darray_capacity(a) == 0);
+    assert_true(darray_capacity(b) == 0);
+
+    assert_true(darray_merge(a, b, (CompareFn)ulong_compare) < 0);
+
+    /* Verify */
+    assert_true(darray_is_empty(a));
+    assert_true(darray_is_empty(b));
+    assert_true(darray_size(a) == 0);
+    assert_true(darray_size(b) == 0);
+    assert_true(darray_capacity(a) == 0);
+    assert_true(darray_capacity(b) == 0);
+
+    darray_free(a);
+    darray_free(b);
+}
+
+void test_darray_merge_existing_with_empty(void)
+{
+    unsigned long old_a_size, old_a_capacity;
+    DArray *b;
+
+    b = darray_create();
+
+    assert_true(a != NULL);
+    assert_true(b != NULL);
+
+    assert_false(darray_is_empty(a));
+    assert_true(darray_is_empty(b));
+
+    old_a_size = darray_size(a);
+    old_a_capacity = darray_capacity(a);
+
+    assert_true(darray_merge(a, b, (CompareFn)ulong_compare) < 0);
+
+    /* Verify */
+    assert_false(darray_is_empty(a));
+    assert_true(darray_is_empty(b));
+
+    assert_true(darray_size(a) == old_a_size);
+    assert_true(darray_size(b) == 0);
+
+    assert_true(darray_capacity(a) == old_a_capacity);
+    assert_true(darray_capacity(b) == 0);
+
+    darray_free(b);
+}
+
+void test_darray_merge_empty_with_existing(void)
+{
+    unsigned long old_a_size, old_a_capacity;
+    DArray *b;
+
+    b = darray_create();
+
+    assert_true(a != NULL);
+    assert_true(b != NULL);
+
+    assert_false(darray_is_empty(a));
+    assert_true(darray_is_empty(b));
+
+    old_a_size = darray_size(a);
+    old_a_capacity = darray_capacity(a);
+
+    assert_true(darray_merge(b, a, (CompareFn)ulong_compare) < 0);
+
+    /* Verify */
+    assert_false(darray_is_empty(a));
+    assert_true(darray_is_empty(b));
+
+    assert_true(darray_size(a) == old_a_size);
+    assert_true(darray_size(b) == 0);
+
+    assert_true(darray_capacity(a) == old_a_capacity);
+    assert_true(darray_capacity(b) == 0);
+
+    darray_free(b);
+}
+
+void test_darray_merge_existing_with_existing(void)
+{
+    unsigned long old_a_size, old_a_capacity;
+    unsigned long old_b_size, old_b_capacity;
+
+    assert_true(a != NULL);
+    assert_true(b != NULL);
+
+    assert_false(darray_is_empty(a));
+    assert_false(darray_is_empty(b));
+
+    old_a_size = darray_size(a);
+    old_a_capacity = darray_capacity(a);
+
+    old_b_size = darray_size(b);
+    old_b_capacity = darray_capacity(b);
+
+    assert_true(darray_merge(a, b, (CompareFn)ulong_compare) == 0);
+
+    /* Verify */
+    assert_false(darray_is_empty(a));
+    assert_false(darray_is_empty(b));
+
+    assert_true(darray_size(a) == (old_a_size + old_b_size));
+    assert_true(darray_size(b) == old_b_size);
+
+    assert_true(darray_capacity(a) >= darray_size(a));
+    assert_true(darray_capacity(b) == old_b_capacity);
+
+    assert_true(darray_is_sorted(a, (CompareFn)ulong_compare));
+}
+
+void test_fixture_darray_merge(void)
+{
+    test_fixture_start();
+
+    run_test(test_darray_merge_empty_with_empty);
+
+    fixture_setup(darray_setup_ints);
+    fixture_teardown(darray_teardown);
+
+    run_test(test_darray_merge_existing_with_empty);
+    run_test(test_darray_merge_empty_with_existing);
+
+    fixture_setup(darray_double_setup_ints);
+    fixture_teardown(darray_double_teardown_concat_safe);
+
+    run_test(test_darray_merge_existing_with_existing);
+
+    test_fixture_end();
+}
+
 void all_tests(void)
 {
     test_fixture_darray_create();
@@ -402,6 +837,9 @@ void all_tests(void)
     test_fixture_darray_remove();
     test_fixture_darray_replace();
     test_fixture_darray_swap();
+    test_fixture_darray_concat();
+    test_fixture_darray_sort();
+    test_fixture_darray_merge();
 }
 
 int main(int argc, char *argv[])
