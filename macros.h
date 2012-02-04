@@ -25,20 +25,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __LIBCORE_UTILITIES_H__
-#define __LIBCORE_UTILITIES_H__
+#ifndef __LIBCORE_MACROS_H__
+#define __LIBCORE_MACROS_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void util_out_of_memory(void);
-
-/* Calculate the next highest power of 2 >= x */
-unsigned long util_pow2_next(unsigned long x);
-
-/* Calculate the next lowest power of 2 <= x */
-unsigned long util_pow2_prev(unsigned long x);
+#define MAX(a,b)    ((a) > (b) ? (a) : (b))
+#define MIN(a,b)    ((a) < (b) ? (a) : (b))
 
 #ifdef __cplusplus
 }
