@@ -41,7 +41,8 @@ OBJS= \
 	stack.o \
 	queue.o \
 	deque.o \
-	heap.o
+	heap.o \
+	priority_queue.o
 
 all: $(OBJS) tests
 
