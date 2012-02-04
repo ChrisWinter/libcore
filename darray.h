@@ -32,6 +32,8 @@
 extern "C" {
 #endif
 
+#include <types.h>
+
 /* Opaque forward declaration */
 typedef struct _darray DArray;
 
@@ -48,8 +50,13 @@ int     darray_replace  (DArray *darray, unsigned long index,
                          void *data);
 int     darray_swap     (DArray *darray, unsigned long index1,
                          unsigned long index2);
+int     darray_concat   (DArray *darray1, DArray *darray2);
+int     darray_sort     (DArray *darray, CompareFn comparefn);
+int     darray_merge    (DArray *darray1, DArray *darray2,
+                         CompareFn comparefn);
 
-int     darray_is_empty (DArray *darray);
+int     darray_is_sorted    (DArray *darray, CompareFn comparefn);
+int     darray_is_empty     (DArray *darray);
 
 unsigned long darray_size       (DArray *darray);
 unsigned long darray_capacity   (DArray *darray);
