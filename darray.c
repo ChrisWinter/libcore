@@ -91,7 +91,6 @@ static int darray_maybe_resize(DArray *darray, long nitems)
     }
 
     new_data = realloc(darray->data, (SIZE_OF_VOIDP * new_capacity));
-
     if(NULL == new_data) {
         fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
         return -1;
@@ -365,15 +364,24 @@ int darray_concat(DArray *darray1, DArray *darray2)
     assert(darray1 != NULL);
     assert(darray2 != NULL);
 
+    /* Don't try to concat the same darray to itself */
     if(darray1 == darray2) {
         return -1;
+    }
+
+    /* No work to do if darray2 is empty. If darray2 is
+     * not empty then it can still be concatenated with
+     * an empty darray1, which is why we don't check if
+     * darray1 is empty.
+     */
+    if(darray_is_empty(darray2)) {
+        return 0;
     }
 
     new_size = darray1->size + darray2->size;
     new_capacity = util_pow2_next(new_size);
 
     darray1->data = realloc(darray1->data, (SIZE_OF_VOIDP * new_capacity));
-
     if(NULL == darray1->data) {
         fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
         return -1;
@@ -395,6 +403,10 @@ int darray_sort(DArray *darray, CompareFn comparefn)
     assert(darray != NULL);
     assert(comparefn != NULL);
 
+    if(darray_is_empty(darray)) {
+        return -1;
+    }
+
     return merge_sort(darray, 0, (darray_size(darray) - 1), comparefn);
 }
 
@@ -404,11 +416,16 @@ int darray_merge(DArray *darray1, DArray *darray2, CompareFn comparefn)
     unsigned long middle;
 
     assert(darray1 != NULL);
-    assert(darray1 != NULL);
+    assert(darray2 != NULL);
     assert(comparefn != NULL);
 
     /* Don't merge if the darrays are the same */
     if(darray1 == darray2) {
+        return -1;
+    }
+
+    /* No work to do if either darray is empty */
+    if(darray_is_empty(darray1) || darray_is_empty(darray2)) {
         return -1;
     }
 
@@ -429,6 +446,15 @@ int darray_is_sorted(DArray *darray, CompareFn comparefn)
 
     assert(darray != NULL);
     assert(comparefn != NULL);
+
+    /* Is an empty array sorted? */
+    if(darray_is_empty(darray)) {
+        return 0;
+    }
+
+    if(darray_size(darray) < 2) {
+        return 1;
+    }
 
     for(i = 0; i < darray_size(darray) - 1; i++) {
         if(comparefn(darray_index(darray, i), darray_index(darray, i + 1)) < 0) {
