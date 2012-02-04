@@ -40,7 +40,8 @@ OBJS= \
 	dlist.o \
 	stack.o \
 	queue.o \
-	deque.o
+	deque.o \
+	heap.o
 
 all: $(OBJS) tests
 
