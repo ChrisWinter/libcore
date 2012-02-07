@@ -54,6 +54,7 @@ tests:
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-stack.c -o unit-tests/test-stack
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-queue.c -o unit-tests/test-queue
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-deque.c -o unit-tests/test-deque
+	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-heap.c -o unit-tests/test-heap
 
 .PHONY: clean
 clean:
@@ -63,4 +64,5 @@ clean:
 		unit-tests/test-dlist \
 		unit-tests/test-stack \
 		unit-tests/test-queue \
-		unit-tests/test-deque
+		unit-tests/test-deque \
+		unit-tests/test-heap
