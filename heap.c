@@ -43,7 +43,6 @@ static unsigned long left_child_of(unsigned index);
 static unsigned long right_child_of(unsigned index);
 static void heapify_up(Heap *heap, unsigned long index);
 static void heapify_down(Heap *heap, unsigned long index);
-static int check_heap(Heap *heap, unsigned long index);
 
 
 static unsigned long parent_of(unsigned long index)
@@ -104,63 +103,6 @@ static void heapify_down(Heap *heap, unsigned long index)
         } else {
             done = 1;
         }
-    }
-}
-
-/* Checks that the heap relational property is valid
- * throughout the heap. Looks at every node.
- */
-static int check_heap(Heap *heap, unsigned long index)
-{
-    unsigned long left, right;
-
-    if(heap_size(heap) == 0) {
-        return 1;
-    }
-
-    /* Reached a child node */
-    if(index > (darray_size(heap->h) - 1) / 2) {
-        return 1;
-    }
-
-    left = left_child_of(index);
-    right = right_child_of(index);
-
-    /* Check the heap property between the parent and each of
-     * its children. The different cases are necessary in
-     * order to check if the current node has valid left
-     * and right children since we don't have any NULL
-     * pointers. This would only be the case anyway on
-     * level h - 1, where h is the height of the tree, since
-     * the heap is modelled on the notion of a complete tree.
-     */
-    if(left < darray_size(heap->h) && right < darray_size(heap->h)) {
-        if((heap->comparefn(darray_index(heap->h, index),
-                            darray_index(heap->h, left)) >= 0) &&
-                (heap->comparefn(darray_index(heap->h, index),
-                                 darray_index(heap->h, right)) >= 0)) {
-            return check_heap(heap, left) &&
-                   check_heap(heap, right);
-        } else {
-            return 0;
-        }
-    } else if(left < darray_size(heap->h)) {
-        if(heap->comparefn(darray_index(heap->h, index),
-                           darray_index(heap->h, left)) >= 0) {
-            return check_heap(heap, left);
-        } else {
-            return 0;
-        }
-    } else if(right < darray_size(heap->h)) {
-        if(heap->comparefn(darray_index(heap->h, index),
-                           darray_index(heap->h, right)) >= 0) {
-            return check_heap(heap, right);
-        } else {
-            return 0;
-        }
-    } else {
-        /* Should never reach this case */
-        return 0;
     }
 }
 
@@ -228,6 +170,10 @@ void* heap_pop(Heap *heap)
 
     assert(heap != NULL);
 
+    if(heap_is_empty(heap)) {
+        return NULL;
+    }
+
     if(darray_swap(heap->h, 0, darray_size(heap->h) - 1) < 0) {
         return NULL;
     }
@@ -243,12 +189,16 @@ void* heap_top(Heap *heap)
 {
     assert(heap != NULL);
 
+    if(heap_is_empty(heap)) {
+        return NULL;
+    }
+
     return darray_index(heap->h, 0);
 }
 
-/* Complexity: O(log n), worst-case if data is located
- * at the root. Otherwise, O(h) where h is the height
- * of the node where data is located.
+/* Complexity: O(n log n), worst-case if data is located
+ * at the right-most leaf node on the lowest level of the
+ * tree.
  */
 int heap_remove(Heap *heap, const void *data)
 {
@@ -256,8 +206,12 @@ int heap_remove(Heap *heap, const void *data)
 
     assert(heap != NULL);
 
-    for(i = 0; i < heap_size(heap) - 1; i++) {
-        if(heap->comparefn(darray_index(heap->h, i), data) == 0) {
+    if(heap_is_empty(heap)) {
+        return -1;
+    }
+
+    for(i = 0; i < heap_size(heap); i++) {
+        if(darray_index(heap->h, i) == data) {
             if(darray_swap(heap->h, i, darray_size(heap->h) - 1) < 0) {
                 return -1;
             }
@@ -281,6 +235,10 @@ int heap_merge(Heap *heap1, Heap* heap2)
     assert(heap1 != NULL);
     assert(heap2 != NULL);
 
+    if(heap_is_empty(heap1) && heap_is_empty(heap2)) {
+        return -1;
+    }
+
     /* O(size(heap2)) */
     if(darray_concat(heap1->h, heap2->h) < 0) {
         return -1;
@@ -303,12 +261,31 @@ int heap_is_empty(Heap *heap)
     return darray_is_empty(heap->h);
 }
 
-/* Complexity: O(n) */
+/* Complexity: O(n)
+ *
+ * Checks that the heap relational property is valid
+ * throughout the heap. Looks at every node.
+ */
 int heap_is_valid(Heap *heap)
 {
+    unsigned long i;
+
     assert(heap != NULL);
 
-    return check_heap(heap, 0);
+    if(heap_size(heap) < 2) {
+        return 1;
+    }
+
+    for(i = 1; i < heap_size(heap); i++) {
+        if(heap->comparefn(darray_index(heap->h, parent_of(i)),
+                           darray_index(heap->h, i)) < 0) {
+            return 0;
+        }
+    }
+
+    return 1;
+
+    /* return check_heap(heap, 0); */
 }
 
 /* Complexity: O(1) */
