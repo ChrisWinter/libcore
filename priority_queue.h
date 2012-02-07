@@ -43,6 +43,7 @@ void    pqueue_free_all      (PQueue *pqueue);
 int     pqueue_push          (PQueue *pqueue, void *data);
 void*   pqueue_pop           (PQueue *pqueue);
 void*   pqueue_top           (PQueue *pqueue);
+
 int     pqueue_is_empty      (PQueue *pqueue);
 
 unsigned long pqueue_size    (PQueue *pqueue);

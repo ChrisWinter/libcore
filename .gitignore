@@ -9,3 +9,4 @@ test-stack
 test-queue
 test-deque
 test-heap
+test-priority-queue
