@@ -32,7 +32,8 @@
 extern "C" {
 #endif
 
-typedef int (*CompareFn)    (const void *, const void *);
+typedef int     (*CompareFn)    (const void *, const void *);
+typedef void    (*FreeFn)       (void *);
 
 #ifdef __cplusplus
 }
