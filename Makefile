@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 CC = gcc
-CFLAGS = -Wall -Werror -O2 -ansi -pedantic -g
+CFLAGS = -Wall -Werror -O0 -ansi -pedantic -g
 INCLUDES = -I./ -I/usr/local/include
 LIBS =
 
@@ -42,7 +42,8 @@ OBJS= \
 	queue.o \
 	deque.o \
 	heap.o \
-	priority_queue.o
+	priority_queue.o \
+	rbtree.o
 
 all: $(OBJS) tests
 
@@ -56,6 +57,7 @@ tests:
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-deque.c -o unit-tests/test-deque
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-heap.c -o unit-tests/test-heap
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-priority-queue.c -o unit-tests/test-priority-queue
+	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-rbtree.c -o unit-tests/test-rbtree
 
 .PHONY: clean
 clean:
@@ -67,4 +69,5 @@ clean:
 		unit-tests/test-queue \
 		unit-tests/test-deque \
 		unit-tests/test-heap \
-		unit-tests/test-priority-queue
+		unit-tests/test-priority-queue \
+		unit-tests/test-rbtree

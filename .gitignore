@@ -10,3 +10,4 @@ test-queue
 test-deque
 test-heap
 test-priority-queue
+test-rbtree
