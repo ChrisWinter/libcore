@@ -64,7 +64,7 @@ void slist_teardown(void)
 {
     assert_true(test_slist != NULL);
 
-    slist_free_all(test_slist);
+    slist_free_all(test_slist, NULL);
     test_slist = NULL;
 }
 
@@ -196,7 +196,7 @@ void test_slist_append_to_empty(void)
     assert_ulong_equal(9999, *val);
     assert_true(slist_size(test_slist) == 1);
 
-    slist_free_all(test_slist);
+    slist_free_all(test_slist, NULL);
     test_slist = NULL;
 }
 
@@ -253,7 +253,7 @@ void test_slist_prepend_to_empty(void)
     assert_ulong_equal(9999, *val);
     assert_true(slist_size(test_slist) == 1);
 
-    slist_free_all(test_slist);
+    slist_free_all(test_slist, NULL);
     test_slist = NULL;
 }
 
@@ -298,7 +298,7 @@ void test_slist_remove_index_from_empty(void)
 
     assert_true(slist_remove_index(test_slist, 0) == NULL);
 
-    slist_free_all(test_slist);
+    slist_free_all(test_slist, NULL);
     test_slist = NULL;
 }
 
@@ -361,7 +361,7 @@ void test_slist_remove_data_from_empty(void)
 
     assert_true(slist_remove_data(test_slist, NULL) == -1);
 
-    slist_free_all(test_slist);
+    slist_free_all(test_slist, NULL);
     test_slist = NULL;
 }
 

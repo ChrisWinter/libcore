@@ -44,16 +44,21 @@ struct _slist {
     unsigned long size;
 };
 
-static void _slist_free(SList *slist, int free_data);
+static void _slist_free(SList *slist, int free_data, FreeFn freefn);
 static struct _slist_node* get_node_before_index(SList *slist, unsigned long index);
 
-static void _slist_free(SList *slist, int free_data)
+static void _slist_free(SList *slist, int free_data, FreeFn freefn)
 {
     struct _slist_node *node;
 
+    if(NULL == freefn) {
+        /* Default to stdlib free */
+        freefn = (FreeFn)free;
+    }
+
     for(node = head(slist); node != slist->nil; node = head(slist)) {
         if(free_data && node->data != NULL) {
-            free(node->data);
+            freefn(node->data);
         }
         head(slist) = node->next;
         free(node);
@@ -113,16 +118,16 @@ void slist_free(SList *slist)
     assert(slist != NULL);
 
     /* Only free slist container and nodes, not node data  */
-    _slist_free(slist, 0);
+    _slist_free(slist, 0, NULL);
 }
 
 /* Complexity: O(n) */
-void slist_free_all(SList *slist)
+void slist_free_all(SList *slist, FreeFn freefn)
 {
     assert(slist != NULL);
 
     /* Free slist container, nodes, and node data  */
-    _slist_free(slist, 1);
+    _slist_free(slist, 1, freefn);
 }
 
 /* Complexity: O(1) */

@@ -32,12 +32,14 @@
 extern "C" {
 #endif
 
+#include <types.h>
+
 /* Opaque forward declaration */
 typedef struct _slist SList;
 
 SList*  slist_create        (void);
 void    slist_free          (SList *slist);
-void    slist_free_all      (SList *slist);
+void    slist_free_all      (SList *slist, FreeFn freefn);
 int     slist_append        (SList *slist, void *data);
 int     slist_prepend       (SList *slist, void *data);
 int     slist_insert        (SList *slist, void *data,
