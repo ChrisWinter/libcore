@@ -195,17 +195,22 @@ void darray_free(DArray *darray)
 }
 
 /* Complexity: O(n) */
-void darray_free_all(DArray *darray)
+void darray_free_all(DArray *darray, FreeFn freefn)
 {
     unsigned long i;
     void *item;
+
+    if(NULL == freefn) {
+        /* Default to stdlib free */
+        freefn = (FreeFn)free;
+    }
 
     if(darray != NULL) {
         if(darray->data != NULL) {
             for(i = 0; i < darray->size; i++) {
                 item = darray->data[i];
                 if(item != NULL) {
-                    free(item);
+                    freefn(item);
                 }
             }
 

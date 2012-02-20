@@ -39,7 +39,7 @@ typedef struct _darray DArray;
 
 DArray* darray_create   (void);
 void    darray_free     (DArray *darray);
-void    darray_free_all (DArray *darray);
+void    darray_free_all (DArray *darray, FreeFn freefn);
 int     darray_append   (DArray *darray, void *data);
 int     darray_prepend  (DArray *darray, void *data);
 int     darray_insert   (DArray *darray, void *data,

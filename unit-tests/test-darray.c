@@ -103,7 +103,7 @@ void test_darray_append(void)
     val = darray_index(a, darray_size(a) - 1);
     assert_ulong_equal(99, *val);
 
-    darray_free_all(a);
+    darray_free_all(a, NULL);
 }
 
 void test_darray_index(void)
@@ -154,7 +154,7 @@ void test_darray_prepend(void)
     val = darray_index(a, darray_size(a) - 1);
     assert_ulong_equal(0, *val);
 
-    darray_free_all(a);
+    darray_free_all(a, NULL);
 }
 
 void test_darray_insert(void)
@@ -182,7 +182,7 @@ void test_darray_insert(void)
     assert_true(darray_size(a) == 100);
     assert_true(darray_capacity(a) >= 100);
 
-    darray_free_all(a);
+    darray_free_all(a, NULL);
 }
 
 void test_darray_remove(void)
@@ -304,20 +304,20 @@ void darray_double_setup_random_ints(void)
 
 void darray_teardown(void)
 {
-    darray_free_all(a);
+    darray_free_all(a, NULL);
     a = NULL;
 }
 
 void darray_double_teardown(void)
 {
-    darray_free_all(a);
-    darray_free_all(b);
+    darray_free_all(a, NULL);
+    darray_free_all(b, NULL);
     a = b = NULL;
 }
 
 void darray_double_teardown_concat_safe(void)
 {
-    darray_free_all(a);
+    darray_free_all(a, NULL);
     darray_free(b);
     a = b = NULL;
 }
