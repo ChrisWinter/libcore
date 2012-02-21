@@ -67,7 +67,7 @@ void deque_teardown(void)
 {
     assert_true(test_deque != NULL);
 
-    deque_free_all(test_deque);
+    deque_free_all(test_deque, NULL);
     test_deque = NULL;
 }
 
@@ -110,7 +110,7 @@ void test_deque_push_front_empty(void)
     /* Verify */
     assert_ulong_equal(9999, *(unsigned long *)deque_front(test_deque));
 
-    deque_free_all(test_deque);
+    deque_free_all(test_deque, NULL);
     test_deque = NULL;
 }
 
@@ -165,7 +165,7 @@ void test_deque_push_back_empty(void)
     /* Verify */
     assert_ulong_equal(9999, *(unsigned long *)deque_back(test_deque));
 
-    deque_free_all(test_deque);
+    deque_free_all(test_deque, NULL);
     test_deque = NULL;
 }
 

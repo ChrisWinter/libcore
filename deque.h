@@ -32,12 +32,14 @@
 extern "C" {
 #endif
 
+#include <types.h>
+
 /* Opaque forward declaration */
 typedef struct _deque Deque;
 
 Deque*  deque_create        (void);
 void    deque_free          (Deque *deque);
-void    deque_free_all      (Deque *deque);
+void    deque_free_all      (Deque *deque, FreeFn freefn);
 int     deque_push_front    (Deque *deque, void *data);
 int     deque_push_back     (Deque *deque, void *data);
 void*   deque_pop_front     (Deque *deque);

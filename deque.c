@@ -69,12 +69,12 @@ void deque_free(Deque *deque)
 }
 
 /* Complexity: O(n) */
-void deque_free_all(Deque *deque)
+void deque_free_all(Deque *deque, FreeFn freefn)
 {
     assert(deque != NULL);
 
     /* Free deque container, dlist, and dlist data  */
-    dlist_free_all(deque->q);
+    dlist_free_all(deque->q, freefn);
     free(deque);
 }
 
