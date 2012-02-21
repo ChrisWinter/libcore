@@ -64,7 +64,7 @@ void dlist_teardown(void)
 {
     assert_true(test_dlist != NULL);
 
-    dlist_free_all(test_dlist);
+    dlist_free_all(test_dlist, NULL);
     test_dlist = NULL;
 }
 
@@ -196,7 +196,7 @@ void test_dlist_append_to_empty(void)
     assert_ulong_equal(9999, *val);
     assert_true(dlist_size(test_dlist) == 1);
 
-    dlist_free_all(test_dlist);
+    dlist_free_all(test_dlist, NULL);
     test_dlist = NULL;
 }
 
@@ -253,7 +253,7 @@ void test_dlist_prepend_to_empty(void)
     assert_ulong_equal(9999, *val);
     assert_true(dlist_size(test_dlist) == 1);
 
-    dlist_free_all(test_dlist);
+    dlist_free_all(test_dlist, NULL);
     test_dlist = NULL;
 }
 
@@ -298,7 +298,7 @@ void test_dlist_remove_index_from_empty(void)
 
     assert_true(dlist_remove_index(test_dlist, 0) == NULL);
 
-    dlist_free_all(test_dlist);
+    dlist_free_all(test_dlist, NULL);
     test_dlist = NULL;
 }
 
@@ -361,7 +361,7 @@ void test_dlist_remove_data_from_empty(void)
 
     assert_true(dlist_remove_data(test_dlist, NULL) == -1);
 
-    dlist_free_all(test_dlist);
+    dlist_free_all(test_dlist, NULL);
     test_dlist = NULL;
 }
 

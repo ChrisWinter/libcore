@@ -45,12 +45,17 @@ struct _dlist {
     unsigned long size;
 };
 
-static void _dlist_free(DList *dlist, int free_data);
+static void _dlist_free(DList *dlist, int free_data, FreeFn freefn);
 static struct _dlist_node* get_node_at_index(DList *dlist, unsigned long index);
 
-static void _dlist_free(DList *dlist, int free_data)
+static void _dlist_free(DList *dlist, int free_data, FreeFn freefn)
 {
     struct _dlist_node *node;
+
+    if(NULL == freefn) {
+        /* Default to stdlib free */
+        freefn = (FreeFn)free;
+    }
 
     for(node = head(dlist); node != dlist->nil; node = head(dlist)) {
         if(free_data && node->data != NULL) {
@@ -130,16 +135,16 @@ void dlist_free(DList *dlist)
     assert(dlist != NULL);
 
     /* Only free dlist container and nodes, NOT node data  */
-    _dlist_free(dlist, 0);
+    _dlist_free(dlist, 0, NULL);
 }
 
 /* Complexity: O(n) */
-void dlist_free_all(DList *dlist)
+void dlist_free_all(DList *dlist, FreeFn freefn)
 {
     assert(dlist != NULL);
 
     /* Free dlist container, nodes, and node data  */
-    _dlist_free(dlist, 1);
+    _dlist_free(dlist, 1, freefn);
 }
 
 /* Complexity: O(1) */
