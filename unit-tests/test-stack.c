@@ -67,7 +67,7 @@ void stack_teardown(void)
 {
     assert_true(test_stack != NULL);
 
-    stack_free_all(test_stack);
+    stack_free_all(test_stack, NULL);
     test_stack = NULL;
 }
 
@@ -107,7 +107,7 @@ void test_stack_push_empty(void)
     assert_true(stack_size(test_stack) == 1);
     assert_false(stack_is_empty(test_stack));
 
-    stack_free_all(test_stack);
+    stack_free_all(test_stack, NULL);
     test_stack = NULL;
 }
 

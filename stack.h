@@ -32,12 +32,14 @@
 extern "C" {
 #endif
 
+#include <types.h>
+
 /* Opaque forward declaration */
 typedef struct _stack Stack;
 
 Stack*  stack_create        (void);
 void    stack_free          (Stack *stack);
-void    stack_free_all      (Stack *stack);
+void    stack_free_all      (Stack *stack, FreeFn freefn);
 int     stack_push          (Stack *stack, void *data);
 void*   stack_pop           (Stack *stack);
 void*   stack_top           (Stack *stack);

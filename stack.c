@@ -69,12 +69,12 @@ void stack_free(Stack *stack)
 }
 
 /* Complexity: O(n) */
-void stack_free_all(Stack *stack)
+void stack_free_all(Stack *stack, FreeFn freefn)
 {
     assert(stack != NULL);
 
     /* Free stack container, slist, and slist data  */
-    slist_free_all(stack->s);
+    slist_free_all(stack->s, freefn);
     free(stack);
 }
 
