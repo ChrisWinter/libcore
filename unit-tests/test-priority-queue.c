@@ -153,20 +153,20 @@ void pqueue_double_setup_ints_random(void)
 
 void pqueue_teardown(void)
 {
-    pqueue_free_all(test_pq);
+    pqueue_free_all(test_pq, NULL);
     test_pq = NULL;
 }
 
 void pqueue_double_teardown(void)
 {
-    pqueue_free_all(test_pq);
-    pqueue_free_all(test_pq2);
+    pqueue_free_all(test_pq, NULL);
+    pqueue_free_all(test_pq2,  NULL);
     test_pq = test_pq2 = NULL;
 }
 
 void pqueue_double_teardown_merge_safe(void)
 {
-    pqueue_free_all(test_pq);
+    pqueue_free_all(test_pq, NULL);
     pqueue_free(test_pq2);
     test_pq = test_pq2 = NULL;
 }
@@ -210,7 +210,7 @@ void test_pqueue_push_empty(void)
 
     assert_ulong_equal(9999, *(unsigned long *)pqueue_top(test_pq));
 
-    pqueue_free_all(test_pq);
+    pqueue_free_all(test_pq, NULL);
     test_pq = NULL;
 }
 

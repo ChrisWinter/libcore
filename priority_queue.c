@@ -72,12 +72,12 @@ void pqueue_free(PQueue *pqueue)
 }
 
 /* Complexity: O(n) */
-void pqueue_free_all(PQueue *pqueue)
+void pqueue_free_all(PQueue *pqueue, FreeFn freefn)
 {
     assert(pqueue != NULL);
 
     /* Free pqueue and heap containers, and all data */
-    heap_free_all(pqueue->h);
+    heap_free_all(pqueue->h, freefn);
     free(pqueue);
 }
 

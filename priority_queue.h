@@ -39,7 +39,7 @@ typedef struct _pqueue PQueue;
 
 PQueue* pqueue_create        (CompareFn comparefn);
 void    pqueue_free          (PQueue *pqueue);
-void    pqueue_free_all      (PQueue *pqueue);
+void    pqueue_free_all      (PQueue *pqueue, FreeFn freefn);
 int     pqueue_push          (PQueue *pqueue, void *data);
 void*   pqueue_pop           (PQueue *pqueue);
 void*   pqueue_top           (PQueue *pqueue);
