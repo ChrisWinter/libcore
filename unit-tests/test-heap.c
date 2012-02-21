@@ -159,20 +159,20 @@ void heap_double_setup_ints_random(void)
 
 void heap_teardown(void)
 {
-    heap_free_all(test_heap);
+    heap_free_all(test_heap, NULL);
     test_heap = NULL;
 }
 
 void heap_double_teardown(void)
 {
-    heap_free_all(test_heap);
-    heap_free_all(test_heap2);
+    heap_free_all(test_heap, NULL);
+    heap_free_all(test_heap2, NULL);
     test_heap = test_heap2 = NULL;
 }
 
 void heap_double_teardown_merge_safe(void)
 {
-    heap_free_all(test_heap);
+    heap_free_all(test_heap, NULL);
     heap_free(test_heap2);
     test_heap = test_heap2 = NULL;
 }
@@ -217,7 +217,7 @@ void test_heap_push_empty(void)
 
     assert_ulong_equal(9999, *(unsigned long *)heap_top(test_heap));
 
-    heap_free_all(test_heap);
+    heap_free_all(test_heap, NULL);
     test_heap = NULL;
 }
 

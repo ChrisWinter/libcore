@@ -39,7 +39,7 @@ typedef struct _heap Heap;
 
 Heap*   heap_create     (CompareFn comparefn);
 void    heap_free       (Heap *heap);
-void    heap_free_all   (Heap *heap);
+void    heap_free_all   (Heap *heap, FreeFn freefn);
 int     heap_push       (Heap *heap, void *data);
 void*   heap_pop        (Heap *heap);
 void*   heap_top        (Heap *heap);

@@ -143,12 +143,12 @@ void heap_free(Heap *heap)
 }
 
 /* Complexity: O(n) */
-void heap_free_all(Heap *heap)
+void heap_free_all(Heap *heap, FreeFn freefn)
 {
     assert(heap != NULL);
 
     /* Free heap and darray containers, and all data */
-    darray_free_all(heap->h);
+    darray_free_all(heap->h, freefn);
     free(heap);
 }
 
@@ -227,7 +227,7 @@ int heap_remove(Heap *heap, const void *data)
     return -1;
 }
 
-/* Complexity: O(size(heap1) + 2 * size(heap2)) */
+/* Complexity: O(size(heap1) + 2 * size(heap2)) => O(n) */
 int heap_merge(Heap *heap1, Heap* heap2)
 {
     unsigned long i;
