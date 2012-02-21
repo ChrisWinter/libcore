@@ -67,7 +67,7 @@ void queue_teardown(void)
 {
     assert_true(test_queue != NULL);
 
-    queue_free_all(test_queue);
+    queue_free_all(test_queue, NULL);
     test_queue = NULL;
 }
 
@@ -107,7 +107,7 @@ void test_queue_enqueue_empty(void)
     assert_true(queue_size(test_queue) == 1);
     assert_false(queue_is_empty(test_queue));
 
-    queue_free_all(test_queue);
+    queue_free_all(test_queue, NULL);
     test_queue = NULL;
 }
 

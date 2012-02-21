@@ -32,12 +32,14 @@
 extern "C" {
 #endif
 
+#include <types.h>
+
 /* Opaque forward declaration */
 typedef struct _queue Queue;
 
 Queue*  queue_create        (void);
 void    queue_free          (Queue *queue);
-void    queue_free_all      (Queue *queue);
+void    queue_free_all      (Queue *queue, FreeFn freefn);
 int     queue_enqueue       (Queue *queue, void *data);
 void*   queue_dequeue       (Queue *queue);
 void*   queue_front         (Queue *queue);

@@ -69,12 +69,12 @@ void queue_free(Queue *queue)
 }
 
 /* Complexity: O(n) */
-void queue_free_all(Queue *queue)
+void queue_free_all(Queue *queue, FreeFn freefn)
 {
     assert(queue != NULL);
 
     /* Free queue container, slist, and slist data  */
-    slist_free_all(queue->q);
+    slist_free_all(queue->q, freefn);
     free(queue);
 }
 
