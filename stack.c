@@ -38,23 +38,7 @@ struct _stack {
 
 Stack* stack_create(void)
 {
-    Stack *new_stack;
-
-    /* Stack container */
-    new_stack = malloc(sizeof(struct _stack));
-    if(NULL == new_stack) {
-        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
-        return NULL;
-    }
-
-    new_stack->s = slist_create();
-    if(NULL == new_stack->s) {
-        fprintf(stderr, "Stack creation failed (%s:%d)\n", __FUNCTION__, __LINE__);
-        free(new_stack);
-        return NULL;
-    }
-
-    return new_stack;
+    return (Stack *)slist_create();
 }
 
 /* Complexity: O(n) */
@@ -64,8 +48,7 @@ void stack_free(Stack *stack)
 
     /* Only free stack container and slist container,
      * not slist data  */
-    slist_free(stack->s);
-    free(stack);
+    slist_free((SList *)stack);
 }
 
 /* Complexity: O(n) */
@@ -74,8 +57,7 @@ void stack_free_all(Stack *stack, FreeFn freefn)
     assert(stack != NULL);
 
     /* Free stack container, slist, and slist data  */
-    slist_free_all(stack->s, freefn);
-    free(stack);
+    slist_free_all((SList *)stack, freefn);
 }
 
 /* Complexity: O(1) */
@@ -83,7 +65,7 @@ int stack_push(Stack *stack, void *data)
 {
     assert(stack != NULL);
 
-    return slist_prepend(stack->s, data);
+    return slist_prepend((SList *)stack, data);
 }
 
 /* Complexity: O(1) */
@@ -91,7 +73,7 @@ void* stack_pop(Stack *stack)
 {
     assert(stack != NULL);
 
-    return slist_remove_index(stack->s, 0);
+    return slist_remove_index((SList *)stack, 0);
 }
 
 /* Complexity: O(1) */
@@ -99,7 +81,7 @@ void* stack_top(Stack *stack)
 {
     assert(stack != NULL);
 
-    return slist_index(stack->s, 0);
+    return slist_index((SList *)stack, 0);
 }
 
 /* Complexity: O(1) */
@@ -107,7 +89,7 @@ int stack_is_empty(Stack *stack)
 {
     assert(stack != NULL);
 
-    return slist_is_empty(stack->s);
+    return slist_is_empty((SList *)stack);
 }
 
 /* Complexity: O(1) */
@@ -115,5 +97,5 @@ unsigned long stack_size(Stack *stack)
 {
     assert(stack != NULL);
 
-    return slist_size(stack->s);
+    return slist_size((SList *)stack);
 }

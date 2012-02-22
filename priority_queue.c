@@ -38,26 +38,9 @@ struct _pqueue {
 
 PQueue* pqueue_create(CompareFn comparefn)
 {
-    PQueue *new_pqueue;
-
     assert(comparefn != NULL);
 
-    /* PQueue container */
-    new_pqueue = malloc(sizeof(struct _pqueue));
-    if(NULL == new_pqueue) {
-        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
-        return NULL;
-    }
-
-    /* Heap backend */
-    new_pqueue->h = heap_create(comparefn);
-    if(NULL == new_pqueue->h) {
-        fprintf(stderr, "PQueue creation failed (%s:%d)\n", __FUNCTION__, __LINE__);
-        free(new_pqueue);
-        return NULL;
-    }
-
-    return new_pqueue;
+    return (PQueue *)heap_create(comparefn);
 }
 
 /* Complexity: O(1) */
@@ -67,8 +50,7 @@ void pqueue_free(PQueue *pqueue)
 
     /* Only free pqueue container and heap container,
      * not the data stored in the pqueue */
-    heap_free(pqueue->h);
-    free(pqueue);
+    heap_free((Heap *)pqueue);
 }
 
 /* Complexity: O(n) */
@@ -77,8 +59,7 @@ void pqueue_free_all(PQueue *pqueue, FreeFn freefn)
     assert(pqueue != NULL);
 
     /* Free pqueue and heap containers, and all data */
-    heap_free_all(pqueue->h, freefn);
-    free(pqueue);
+    heap_free_all((Heap *)pqueue, freefn);
 }
 
 /* Complexity: O(log n), worst-case */
@@ -86,7 +67,7 @@ int pqueue_push(PQueue *pqueue, void *data)
 {
     assert(pqueue != NULL);
 
-    return heap_push(pqueue->h, data);
+    return heap_push((Heap *)pqueue, data);
 }
 
 /* Complexity: O(log n) */
@@ -94,7 +75,7 @@ void* pqueue_pop(PQueue *pqueue)
 {
     assert(pqueue != NULL);
 
-    return heap_pop(pqueue->h);
+    return heap_pop((Heap *)pqueue);
 }
 
 /* Complexity: O(1) */
@@ -102,7 +83,7 @@ void* pqueue_top(PQueue *pqueue)
 {
     assert(pqueue != NULL);
 
-    return heap_top(pqueue->h);
+    return heap_top((Heap *)pqueue);
 }
 
 /* Complexity: O(1) */
@@ -110,7 +91,7 @@ int pqueue_is_empty(PQueue *pqueue)
 {
     assert(pqueue != NULL);
 
-    return heap_is_empty(pqueue->h);
+    return heap_is_empty((Heap *)pqueue);
 }
 
 /* Complexity: O(1) */
@@ -118,5 +99,5 @@ unsigned long pqueue_size(PQueue *pqueue)
 {
     assert(pqueue != NULL);
 
-    return heap_size(pqueue->h);
+    return heap_size((Heap *)pqueue);
 }

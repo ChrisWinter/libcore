@@ -38,23 +38,7 @@ struct _deque {
 
 Deque* deque_create(void)
 {
-    Deque *new_deque;
-
-    /* Deque container */
-    new_deque = malloc(sizeof(struct _deque));
-    if(NULL == new_deque) {
-        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
-        return NULL;
-    }
-
-    new_deque->q = dlist_create();
-    if(NULL == new_deque->q) {
-        fprintf(stderr, "Deque creation failed (%s:%d)\n", __FUNCTION__, __LINE__);
-        free(new_deque);
-        return NULL;
-    }
-
-    return new_deque;
+    return (Deque*)dlist_create();
 }
 
 /* Complexity: O(n) */
@@ -64,8 +48,7 @@ void deque_free(Deque *deque)
 
     /* Only free deque container and dlist container,
      * not dlist data  */
-    dlist_free(deque->q);
-    free(deque);
+    dlist_free((DList *)deque);
 }
 
 /* Complexity: O(n) */
@@ -74,8 +57,7 @@ void deque_free_all(Deque *deque, FreeFn freefn)
     assert(deque != NULL);
 
     /* Free deque container, dlist, and dlist data  */
-    dlist_free_all(deque->q, freefn);
-    free(deque);
+    dlist_free_all((DList *)deque, freefn);
 }
 
 /* Complexity: O(1) */
@@ -83,7 +65,7 @@ int deque_push_front(Deque *deque, void *data)
 {
     assert(deque != NULL);
 
-    return dlist_prepend(deque->q, data);
+    return dlist_prepend((DList *)deque, data);
 }
 
 /* Complexity: O(1) */
@@ -91,7 +73,7 @@ int deque_push_back(Deque *deque, void *data)
 {
     assert(deque != NULL);
 
-    return dlist_append(deque->q, data);
+    return dlist_append((DList *)deque, data);
 }
 
 /* Complexity: O(1) */
@@ -99,7 +81,7 @@ void* deque_pop_front(Deque *deque)
 {
     assert(deque != NULL);
 
-    return dlist_remove_index(deque->q, 0);
+    return dlist_remove_index((DList *)deque, 0);
 }
 
 /* Complexity: O(1) */
@@ -107,7 +89,7 @@ void* deque_pop_back(Deque *deque)
 {
     assert(deque != NULL);
 
-    return dlist_remove_index(deque->q, dlist_size(deque->q) - 1);
+    return dlist_remove_index((DList *)deque, dlist_size((DList *)deque) - 1);
 }
 
 /* Complexity: O(1) */
@@ -115,7 +97,7 @@ void* deque_front(Deque *deque)
 {
     assert(deque != NULL);
 
-    return dlist_index(deque->q, 0);
+    return dlist_index((DList *)deque, 0);
 }
 
 /* Complexity: O(1) */
@@ -123,11 +105,11 @@ void* deque_back(Deque *deque)
 {
     assert(deque != NULL);
 
-    if(dlist_is_empty(deque->q)) {
+    if(dlist_is_empty((DList *)deque)) {
         return NULL;
     }
 
-    return dlist_index(deque->q, dlist_size(deque->q) - 1);
+    return dlist_index((DList *)deque, dlist_size((DList *)deque) - 1);
 }
 
 /* Complexity: O(1) */
@@ -135,7 +117,7 @@ int deque_is_empty(Deque *deque)
 {
     assert(deque != NULL);
 
-    return dlist_is_empty(deque->q);
+    return dlist_is_empty((DList *)deque);
 }
 
 /* Complexity: O(1) */
@@ -143,5 +125,5 @@ unsigned long deque_size(Deque *deque)
 {
     assert(deque != NULL);
 
-    return dlist_size(deque->q);
+    return dlist_size((DList *)deque);
 }
