@@ -43,7 +43,8 @@ OBJS= \
 	deque.o \
 	heap.o \
 	priority_queue.o \
-	rbtree.o
+	rbtree.o \
+	set.o
 
 all: $(OBJS) tests
 
@@ -58,6 +59,7 @@ tests:
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-heap.c -o unit-tests/test-heap
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-priority-queue.c -o unit-tests/test-priority-queue
 	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-rbtree.c -o unit-tests/test-rbtree
+	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-set.c -o unit-tests/test-set
 
 .PHONY: clean
 clean:
@@ -70,4 +72,5 @@ clean:
 		unit-tests/test-deque \
 		unit-tests/test-heap \
 		unit-tests/test-priority-queue \
-		unit-tests/test-rbtree
+		unit-tests/test-rbtree \
+		unit-tests/test-set
