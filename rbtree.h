@@ -47,7 +47,9 @@ void*   rbtree_remove       (RBTree *rbtree, const void *key);
 int     rbtree_is_empty     (RBTree *rbtree);
 int     rbtree_is_valid     (RBTree *rbtree);
 
-unsigned long rbtree_size   (RBTree *rbtree);
+unsigned long   rbtree_size         (RBTree *rbtree);
+
+CompareFn       rbtree_get_comparefn(RBTree *rbtree);
 
 /* Iterators */
 RBTreeIterator* rbtree_insert_equal_at  (RBTree *rbtree, RBTreeIterator *it,

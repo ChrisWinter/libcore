@@ -667,6 +667,13 @@ unsigned long rbtree_size(RBTree *rbtree)
     return rbtree->size;
 }
 
+CompareFn rbtree_get_comparefn(RBTree *rbtree)
+{
+    assert(rbtree != NULL);
+
+    return rbtree->comparefn;
+}
+
 /* Returns an iterator at the position where the new key,value
  * pair is actually inserted. The supplied position, *it, is the
  * position of the first element to be compared for the insertion
