@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #include <seatest.h>
-#include <priority_queue.h>
+#include <libcore/priority_queue.h>
 
 static PQueue *test_pq = NULL;
 static PQueue *test_pq2 = NULL;

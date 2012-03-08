@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #include <seatest.h>
-#include <dlist.h>
+#include <libcore/dlist.h>
 
 static DList *test_dlist = NULL;
 

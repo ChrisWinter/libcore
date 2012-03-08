@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #include <seatest.h>
-#include <deque.h>
+#include <libcore/deque.h>
 
 static Deque *test_deque = NULL;
 

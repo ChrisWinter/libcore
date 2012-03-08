@@ -25,79 +25,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef __LIBCORE_DARRAY_H__
+#define __LIBCORE_DARRAY_H__
 
-#include "priority_queue.h"
-#include "heap.h"
+#if __cplusplus
+extern "C" {
+#endif
 
-struct _pqueue {
-    Heap *h;
-};
+#include <libcore/types.h>
 
-PQueue* pqueue_create(CompareFn comparefn)
-{
-    assert(comparefn != NULL);
+/* Opaque forward declaration */
+typedef struct _darray DArray;
 
-    return (PQueue *)heap_create(comparefn);
+DArray* darray_create   (void);
+void    darray_free     (DArray *darray);
+void    darray_free_all (DArray *darray, FreeFn freefn);
+int     darray_append   (DArray *darray, void *data);
+int     darray_prepend  (DArray *darray, void *data);
+int     darray_insert   (DArray *darray, void *data,
+                         unsigned long index);
+void*   darray_remove   (DArray *darray, unsigned long index);
+void*   darray_index    (DArray *darray, unsigned long index);
+int     darray_replace  (DArray *darray, unsigned long index,
+                         void *data);
+int     darray_swap     (DArray *darray, unsigned long index1,
+                         unsigned long index2);
+int     darray_concat   (DArray *darray1, DArray *darray2);
+int     darray_sort     (DArray *darray, CompareFn comparefn);
+int     darray_merge    (DArray *darray1, DArray *darray2,
+                         CompareFn comparefn);
+
+int     darray_is_sorted    (DArray *darray, CompareFn comparefn);
+int     darray_is_empty     (DArray *darray);
+
+unsigned long darray_size       (DArray *darray);
+unsigned long darray_capacity   (DArray *darray);
+
+#if __cplusplus
 }
+#endif
 
-/* Complexity: O(1) */
-void pqueue_free(PQueue *pqueue)
-{
-    assert(pqueue != NULL);
-
-    /* Only free pqueue container and heap container,
-     * not the data stored in the pqueue */
-    heap_free((Heap *)pqueue);
-}
-
-/* Complexity: O(n) */
-void pqueue_free_all(PQueue *pqueue, FreeFn freefn)
-{
-    assert(pqueue != NULL);
-
-    /* Free pqueue and heap containers, and all data */
-    heap_free_all((Heap *)pqueue, freefn);
-}
-
-/* Complexity: O(log n), worst-case */
-int pqueue_push(PQueue *pqueue, void *data)
-{
-    assert(pqueue != NULL);
-
-    return heap_push((Heap *)pqueue, data);
-}
-
-/* Complexity: O(log n) */
-void* pqueue_pop(PQueue *pqueue)
-{
-    assert(pqueue != NULL);
-
-    return heap_pop((Heap *)pqueue);
-}
-
-/* Complexity: O(1) */
-void* pqueue_top(PQueue *pqueue)
-{
-    assert(pqueue != NULL);
-
-    return heap_top((Heap *)pqueue);
-}
-
-/* Complexity: O(1) */
-int pqueue_is_empty(PQueue *pqueue)
-{
-    assert(pqueue != NULL);
-
-    return heap_is_empty((Heap *)pqueue);
-}
-
-/* Complexity: O(1) */
-unsigned long pqueue_size(PQueue *pqueue)
-{
-    assert(pqueue != NULL);
-
-    return heap_size((Heap *)pqueue);
-}
+#endif

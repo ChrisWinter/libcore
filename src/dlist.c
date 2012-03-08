@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "dlist.h"
+#include <libcore/dlist.h>
 
 #define head(dl)    (dl)->nil->next
 #define tail(dl)    (dl)->nil->prev
@@ -38,6 +38,7 @@
 struct _dlist_node {
     void *data;
     struct _dlist_node *next, *prev;
+    struct _dlist *dlist;
 };
 
 struct _dlist {
@@ -173,9 +174,10 @@ int dlist_insert(DList *dlist, void *data, unsigned long index)
         return -1;
     }
 
-    new_node->data = data;
-    new_node->next = NULL;
-    new_node->prev = NULL;
+    new_node->data  = data;
+    new_node->next  = NULL;
+    new_node->prev  = NULL;
+    new_node->dlist = dlist;
 
     node = get_node_at_index(dlist, index);
 
@@ -287,4 +289,91 @@ unsigned long dlist_size(DList *dlist)
     assert(dlist != NULL);
 
     return (dlist->size);
+}
+
+DListIterator* dlist_begin(DList *dlist)
+{
+    struct _dlist_node *it;
+
+    assert(dlist != NULL);
+
+    it = head(dlist);
+
+    if(it == dlist->nil) {
+        return NULL;
+    }
+
+    return it;
+}
+
+DListIterator* dlist_end(DList *dlist)
+{
+    struct _dlist_node *it;
+
+    assert(dlist != NULL);
+
+    it = tail(dlist);
+
+    if(it == dlist->nil) {
+        return NULL;
+    }
+
+    return it;
+}
+
+DListIterator* dlist_next(DListIterator *it)
+{
+    assert(it != NULL);
+
+    if(it->next == it->dlist->nil) {
+        return NULL;
+    }
+
+    return it->next;
+}
+
+DListIterator* dlist_prev(DListIterator *it)
+{
+    assert(it != NULL);
+
+    if(it->prev == it->dlist->nil) {
+        return NULL;
+    }
+
+    return it->prev;
+}
+
+DListIterator* dlist_insert_at(DListIterator *it, void *data)
+{
+    assert(it != NULL);
+
+    return NULL;
+}
+
+DListIterator* dlist_insert_before(DListIterator *it, void *data)
+{
+    assert(it != NULL);
+
+    return NULL;
+}
+
+DListIterator* dlist_insert_after(DListIterator *it, void *data)
+{
+    assert(it != NULL);
+
+    return NULL;
+}
+
+void* dlist_remove_at(DListIterator *it)
+{
+    assert(it != NULL);
+
+    return NULL;
+}
+
+void* dlist_get_data(DListIterator *it)
+{
+    assert(it != NULL);
+
+    return NULL;
 }

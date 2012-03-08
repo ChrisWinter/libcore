@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #include <seatest.h>
-#include <heap.h>
+#include <libcore/heap.h>
 
 static Heap *test_heap = NULL;
 static Heap *test_heap2 = NULL;

@@ -25,89 +25,31 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef __LIBCORE_QUEUE_H__
+#define __LIBCORE_QUEUE_H__
 
-#include "queue.h"
-#include "slist.h"
+#if __cplusplus
+extern "C" {
+#endif
 
-struct _queue {
-    SList *q;
-};
+#include <libcore/types.h>
 
-Queue* queue_create(void)
-{
-    return (Queue *)slist_create();
+/* Opaque forward declaration */
+typedef struct _queue Queue;
+
+Queue*  queue_create        (void);
+void    queue_free          (Queue *queue);
+void    queue_free_all      (Queue *queue, FreeFn freefn);
+int     queue_enqueue       (Queue *queue, void *data);
+void*   queue_dequeue       (Queue *queue);
+void*   queue_front         (Queue *queue);
+void*   queue_back          (Queue *queue);
+int     queue_is_empty      (Queue *queue);
+
+unsigned long queue_size    (Queue *queue);
+
+#if __cplusplus
 }
+#endif
 
-/* Complexity: O(n) */
-void queue_free(Queue *queue)
-{
-    assert(queue != NULL);
-
-    /* Only free queue container and slist container,
-     * not slist data  */
-    slist_free((SList *)queue);
-}
-
-/* Complexity: O(n) */
-void queue_free_all(Queue *queue, FreeFn freefn)
-{
-    assert(queue != NULL);
-
-    /* Free queue container, slist, and slist data  */
-    slist_free_all((SList *)queue, freefn);
-}
-
-/* Complexity: O(1) */
-int queue_enqueue(Queue *queue, void *data)
-{
-    assert(queue != NULL);
-
-    return slist_append((SList *)queue, data);
-}
-
-/* Complexity: O(1) */
-void* queue_dequeue(Queue *queue)
-{
-    assert(queue != NULL);
-
-    return slist_remove_index((SList *)queue, 0);
-}
-
-/* Complexity: O(1) */
-void* queue_front(Queue *queue)
-{
-    assert(queue != NULL);
-
-    return slist_index((SList *)queue, 0);
-}
-
-/* Complexity: O(1) */
-void* queue_back(Queue *queue)
-{
-    assert(queue != NULL);
-
-    if(slist_is_empty((SList *)queue)) {
-        return NULL;
-    }
-
-    return slist_index((SList *)queue, slist_size((SList *)queue) - 1);
-}
-
-/* Complexity: O(1) */
-int queue_is_empty(Queue *queue)
-{
-    assert(queue != NULL);
-
-    return slist_is_empty((SList *)queue);
-}
-
-/* Complexity: O(1) */
-unsigned long queue_size(Queue *queue)
-{
-    assert(queue != NULL);
-
-    return slist_size((SList *)queue);
-}
+#endif

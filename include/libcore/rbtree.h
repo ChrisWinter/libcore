@@ -25,46 +25,48 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __LIBCORE_SET_H__
-#define __LIBCORE_SET_H__
+#ifndef __LIBCORE_RBTREE_H__
+#define __LIBCORE_RBTREE_H__
 
 #if __cplusplus
 extern "C" {
 #endif
 
-#include <types.h>
+#include <libcore/types.h>
 
 /* Opaque forward declarations */
-typedef struct _set Set;
-typedef struct _set_iterator SetIterator;
+typedef struct _rbtree RBTree;
+typedef struct _rbtree_node RBTreeIterator;
 
-Set*    set_create      (CompareFn comparefn);
-void    set_free        (Set *set);
-void    set_free_all    (Set *set, FreeFn freefn);
-int     set_insert      (Set *set, void *value);
-void*   set_remove      (Set *set, const void *value);
+RBTree* rbtree_create       (CompareFn comparefn);
+void    rbtree_free         (RBTree *rbtree);
+void    rbtree_free_all     (RBTree *rbtree, FreeFn freefn);
+int     rbtree_insert_equal (RBTree *rbtree, const void *key, void *value);
+int     rbtree_insert_unique(RBTree *rbtree, const void *key, void *value);
+void*   rbtree_remove       (RBTree *rbtree, const void *key);
+int     rbtree_is_empty     (RBTree *rbtree);
+int     rbtree_is_valid     (RBTree *rbtree);
 
-Set*    set_union       (Set *set1, Set *set2);
-Set*    set_intersect   (Set *set1, Set *set2);
-Set*    set_diff        (Set *set1, Set *set2);
-Set*    set_symdiff     (Set *set1, Set *set2);
+unsigned long   rbtree_size         (RBTree *rbtree);
 
-int     set_is_equal    (Set *set1, Set *set2);
-int     set_is_subset   (Set *set1, Set *set2);
-int     set_is_member   (Set *set, void *value);
-int     set_is_empty    (Set *set);
-
-unsigned long set_size  (Set *set);
+CompareFn       rbtree_get_comparefn(RBTree *rbtree);
 
 /* Iterators */
-void*           set_remove_at    (Set *set, SetIterator *it);
-SetIterator*    set_find         (Set *set, const void *value);
-SetIterator*    set_begin        (Set *set);
-SetIterator*    set_end          (Set *set);
-SetIterator*    set_next         (SetIterator *it);
-SetIterator*    set_prev         (SetIterator *it);
+RBTreeIterator* rbtree_insert_equal_at  (RBTree *rbtree, RBTreeIterator *it,
+                                         const void *key, void *value,
+                                         int *success);
+RBTreeIterator* rbtree_insert_unique_at (RBTree *rbtree, RBTreeIterator *it,
+                                         const void *key, void *value,
+                                         int *success);
+void*           rbtree_remove_at    (RBTree *rbtree, RBTreeIterator *it);
+RBTreeIterator* rbtree_find         (RBTree *rbtree, const void *key);
+RBTreeIterator* rbtree_begin        (RBTree *rbtree);
+RBTreeIterator* rbtree_end          (RBTree *rbtree);
+RBTreeIterator* rbtree_next         (RBTreeIterator *it);
+RBTreeIterator* rbtree_prev         (RBTreeIterator *it);
 
-void*           set_get_value    (SetIterator *it);
+const void* rbtree_get_key      (RBTreeIterator *it);
+void*       rbtree_get_value    (RBTreeIterator *it);
 
 #if __cplusplus
 }

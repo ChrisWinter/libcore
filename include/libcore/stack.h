@@ -25,41 +25,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __LIBCORE_DARRAY_H__
-#define __LIBCORE_DARRAY_H__
+#ifndef __LIBCORE_STACK_H__
+#define __LIBCORE_STACK_H__
 
 #if __cplusplus
 extern "C" {
 #endif
 
-#include <types.h>
+#include <libcore/types.h>
 
 /* Opaque forward declaration */
-typedef struct _darray DArray;
+typedef struct _stack Stack;
 
-DArray* darray_create   (void);
-void    darray_free     (DArray *darray);
-void    darray_free_all (DArray *darray, FreeFn freefn);
-int     darray_append   (DArray *darray, void *data);
-int     darray_prepend  (DArray *darray, void *data);
-int     darray_insert   (DArray *darray, void *data,
-                         unsigned long index);
-void*   darray_remove   (DArray *darray, unsigned long index);
-void*   darray_index    (DArray *darray, unsigned long index);
-int     darray_replace  (DArray *darray, unsigned long index,
-                         void *data);
-int     darray_swap     (DArray *darray, unsigned long index1,
-                         unsigned long index2);
-int     darray_concat   (DArray *darray1, DArray *darray2);
-int     darray_sort     (DArray *darray, CompareFn comparefn);
-int     darray_merge    (DArray *darray1, DArray *darray2,
-                         CompareFn comparefn);
+Stack*  stack_create        (void);
+void    stack_free          (Stack *stack);
+void    stack_free_all      (Stack *stack, FreeFn freefn);
+int     stack_push          (Stack *stack, void *data);
+void*   stack_pop           (Stack *stack);
+void*   stack_top           (Stack *stack);
+int     stack_is_empty      (Stack *stack);
 
-int     darray_is_sorted    (DArray *darray, CompareFn comparefn);
-int     darray_is_empty     (DArray *darray);
-
-unsigned long darray_size       (DArray *darray);
-unsigned long darray_capacity   (DArray *darray);
+unsigned long stack_size    (Stack *stack);
 
 #if __cplusplus
 }

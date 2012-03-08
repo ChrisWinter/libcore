@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "rbtree.h"
+#include <libcore/rbtree.h>
 
 typedef enum {RED, BLACK} _node_color;
 

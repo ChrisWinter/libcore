@@ -25,31 +25,77 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __LIBCORE_QUEUE_H__
-#define __LIBCORE_QUEUE_H__
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#if __cplusplus
-extern "C" {
-#endif
+#include <libcore/stack.h>
+#include <libcore/slist.h>
 
-#include <types.h>
+struct _stack {
+    SList *s;
+};
 
-/* Opaque forward declaration */
-typedef struct _queue Queue;
-
-Queue*  queue_create        (void);
-void    queue_free          (Queue *queue);
-void    queue_free_all      (Queue *queue, FreeFn freefn);
-int     queue_enqueue       (Queue *queue, void *data);
-void*   queue_dequeue       (Queue *queue);
-void*   queue_front         (Queue *queue);
-void*   queue_back          (Queue *queue);
-int     queue_is_empty      (Queue *queue);
-
-unsigned long queue_size    (Queue *queue);
-
-#if __cplusplus
+Stack* stack_create(void)
+{
+    return (Stack *)slist_create();
 }
-#endif
 
-#endif
+/* Complexity: O(n) */
+void stack_free(Stack *stack)
+{
+    assert(stack != NULL);
+
+    /* Only free stack container and slist container,
+     * not slist data  */
+    slist_free((SList *)stack);
+}
+
+/* Complexity: O(n) */
+void stack_free_all(Stack *stack, FreeFn freefn)
+{
+    assert(stack != NULL);
+
+    /* Free stack container, slist, and slist data  */
+    slist_free_all((SList *)stack, freefn);
+}
+
+/* Complexity: O(1) */
+int stack_push(Stack *stack, void *data)
+{
+    assert(stack != NULL);
+
+    return slist_prepend((SList *)stack, data);
+}
+
+/* Complexity: O(1) */
+void* stack_pop(Stack *stack)
+{
+    assert(stack != NULL);
+
+    return slist_remove_index((SList *)stack, 0);
+}
+
+/* Complexity: O(1) */
+void* stack_top(Stack *stack)
+{
+    assert(stack != NULL);
+
+    return slist_index((SList *)stack, 0);
+}
+
+/* Complexity: O(1) */
+int stack_is_empty(Stack *stack)
+{
+    assert(stack != NULL);
+
+    return slist_is_empty((SList *)stack);
+}
+
+/* Complexity: O(1) */
+unsigned long stack_size(Stack *stack)
+{
+    assert(stack != NULL);
+
+    return slist_size((SList *)stack);
+}

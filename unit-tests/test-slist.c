@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #include <seatest.h>
-#include <slist.h>
+#include <libcore/slist.h>
 
 static SList *test_slist = NULL;
 

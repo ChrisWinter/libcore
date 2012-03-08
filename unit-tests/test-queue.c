@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #include <seatest.h>
-#include <queue.h>
+#include <libcore/queue.h>
 
 static Queue *test_queue = NULL;
 

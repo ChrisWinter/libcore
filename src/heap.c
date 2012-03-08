@@ -29,8 +29,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "heap.h"
-#include "darray.h"
+#include <libcore/heap.h>
+#include <libcore/darray.h>
 
 struct _heap {
     DArray *h;

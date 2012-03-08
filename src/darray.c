@@ -30,9 +30,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "darray.h"
-#include "macros.h"
-#include "utilities.h"
+#include <libcore/darray.h>
+#include <libcore/macros.h>
+#include <libcore/utilities.h>
 
 #define DARRAY_MIN_SIZE     32
 #define SIZE_OF_VOIDP       sizeof(void *)

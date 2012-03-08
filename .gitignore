@@ -1,6 +1,10 @@
 *.swp
 *.o
 *.core
+*.d
+*.a
+*.so
+*.so.*
 
 test-darray
 test-slist

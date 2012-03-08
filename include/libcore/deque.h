@@ -25,31 +25,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __LIBCORE_BINARY_HEAP_H__
-#define __LIBCORE_BINARY_HEAP_H__
+#ifndef __LIBCORE_DEQUE_H__
+#define __LIBCORE_DEQUE_H__
 
 #if __cplusplus
 extern "C" {
 #endif
 
-#include <types.h>
+#include <libcore/types.h>
 
 /* Opaque forward declaration */
-typedef struct _heap Heap;
+typedef struct _deque Deque;
 
-Heap*   heap_create     (CompareFn comparefn);
-void    heap_free       (Heap *heap);
-void    heap_free_all   (Heap *heap, FreeFn freefn);
-int     heap_push       (Heap *heap, void *data);
-void*   heap_pop        (Heap *heap);
-void*   heap_top        (Heap *heap);
-int     heap_remove     (Heap *heap, const void *data);
-int     heap_merge      (Heap *heap1, Heap* heap2);
+Deque*  deque_create        (void);
+void    deque_free          (Deque *deque);
+void    deque_free_all      (Deque *deque, FreeFn freefn);
+int     deque_push_front    (Deque *deque, void *data);
+int     deque_push_back     (Deque *deque, void *data);
+void*   deque_pop_front     (Deque *deque);
+void*   deque_pop_back      (Deque *deque);
+void*   deque_front         (Deque *deque);
+void*   deque_back          (Deque *deque);
+int     deque_is_empty      (Deque *deque);
 
-int     heap_is_valid   (Heap *heap);
-int     heap_is_empty   (Heap *heap);
-
-unsigned long heap_size (Heap *heap);
+unsigned long deque_size    (Deque *deque);
 
 #if __cplusplus
 }

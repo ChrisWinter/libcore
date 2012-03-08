@@ -29,8 +29,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "deque.h"
-#include "dlist.h"
+#include <libcore/deque.h>
+#include <libcore/dlist.h>
 
 struct _deque {
     DList *q;

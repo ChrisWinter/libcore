@@ -28,8 +28,8 @@
 #include <stdlib.h>
 
 #include <seatest.h>
-#include <macros.h>
-#include <set.h>
+#include <libcore/macros.h>
+#include <libcore/set.h>
 
 #define ARRAY_LEN(x)    sizeof((x)) / sizeof((x)[0])
 

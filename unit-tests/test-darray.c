@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #include <seatest.h>
-#include <darray.h>
+#include <libcore/darray.h>
 
 static DArray *a, *b;
 

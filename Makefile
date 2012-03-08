@@ -24,53 +24,83 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-CC = gcc
-CFLAGS = -Wall -Werror -O0 -ansi -pedantic -g
-INCLUDES = -I./ -I/usr/local/include
-LIBS =
+CC= gcc
+CFLAGS= -Wall -Werror -fPIC -O0 -ansi -pedantic -g
+INCLUDES= -I./include/ -I/usr/local/include
+
+CFLAGS_TESTS= -Wall -Werror -O0 -ansi -pedantic -g
+LDFLAGS_TESTS= -L.
+LIBS_TESTS= -lcore
+
+INSTALL= install
+INSTALL_DIR= /usr/local
+INSTALL_INCDIR= $(INSTALL_DIR)/include
+INSTALL_LIBDIR= $(INSTALL_DIR)/lib
+
+TEST_DIR= unit-tests
+
+SEATEST_OBJS= \
+	ext/seatest/seatest.o
+
+LIBCORE_OBJS= \
+	src/utilities.o \
+	src/darray.o \
+	src/slist.o \
+	src/dlist.o \
+	src/stack.o \
+	src/queue.o \
+	src/deque.o \
+	src/heap.o \
+	src/priority_queue.o \
+	src/rbtree.o \
+	src/set.o
+
+UNIT_TESTS= \
+	test-darray \
+	test-slist \
+	test-dlist \
+	test-stack \
+	test-queue \
+	test-deque \
+	test-heap \
+	test-priority-queue \
+	test-rbtree \
+	test-set
+
+TEST_PROGRAMS= $(addprefix $(TEST_DIR)/, $(UNIT_TESTS))
+TEST_OBJS= $(addsuffix .o, $(UNIT_TESTS))
+
+all: tests
+
+DEPS= $(LIBCORE_OBJS:.o=.d)
+
+-include $(DEPS)
+
+.PHONY: libcore tests clean all install uninstall
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -MMD -c $< -o $@
 
-OBJS= \
-	ext/seatest/seatest.o \
-	utilities.o \
-	darray.o \
-	slist.o \
-	dlist.o \
-	stack.o \
-	queue.o \
-	deque.o \
-	heap.o \
-	priority_queue.o \
-	rbtree.o \
-	set.o
+libcore: $(LIBCORE_OBJS)
+	ar rcs libcore.a $(LIBCORE_OBJS)
+	$(CC) -shared -Wl,-soname,libcore.so.0 -o libcore.so.0.0 $(LIBCORE_OBJS)
 
-all: $(OBJS) tests
+tests: libcore $(SEATEST_OBJS) $(TEST_PROGRAMS)
 
-.PHONY: tests
-tests:
-	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-darray.c -o unit-tests/test-darray
-	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-slist.c -o unit-tests/test-slist
-	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-dlist.c -o unit-tests/test-dlist
-	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-stack.c -o unit-tests/test-stack
-	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-queue.c -o unit-tests/test-queue
-	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-deque.c -o unit-tests/test-deque
-	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-heap.c -o unit-tests/test-heap
-	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-priority-queue.c -o unit-tests/test-priority-queue
-	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-rbtree.c -o unit-tests/test-rbtree
-	$(CC) $(CFLAGS) $(INCLUDES) -I./ext/seatest/ $(LIBS) $(OBJS) unit-tests/test-set.c -o unit-tests/test-set
+$(TEST_PROGRAMS): % : %.c
+	$(CC) $(CFLAGS_TESTS) $(INCLUDES) -I./ext/seatest/ $(SEATEST_OBJS) -o $@ $< $(LDFLAGS_TESTS) $(LIBS_TESTS)
 
-.PHONY: clean
 clean:
-	rm *.o \
-		unit-tests/test-darray \
-		unit-tests/test-slist \
-		unit-tests/test-dlist \
-		unit-tests/test-stack \
-		unit-tests/test-queue \
-		unit-tests/test-deque \
-		unit-tests/test-heap \
-		unit-tests/test-priority-queue \
-		unit-tests/test-rbtree \
-		unit-tests/test-set
+	rm $(DEPS) $(LIBCORE_OBJS) *.so.* *.a $(TEST_PROGRAMS)
+
+install: libcore
+	$(INSTALL) -d -m 755 '$(INSTALL_INCDIR)'
+	$(INSTALL) -d -m 755 '$(INSTALL_LIBDIR)'
+	cp -r include/libcore $(INSTALL_INCDIR)/
+	cp *.so.* $(INSTALL_LIBDIR)
+	cp *.a $(INSTALL_LIBDIR)
+	ln -s $(INSTALL_LIBDIR)/libcore.so.0.0 $(INSTALL_LIBDIR)/libcore.so
+
+uninstall:
+	rm -fr $(INSTALL_INCDIR)/libcore
+	rm $(INSTALL_LIBDIR)/libcore.*

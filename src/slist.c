@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "slist.h"
+#include <libcore/slist.h>
 
 #define head(sl)    (sl)->nil->next
 

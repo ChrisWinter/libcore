@@ -25,31 +25,41 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __LIBCORE_PRIORITY_QUEUE_H__
-#define __LIBCORE_PRIORITY_QUEUE_H__
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#if __cplusplus
-extern "C" {
-#endif
+#include <libcore/utilities.h>
 
-#include <types.h>
-
-/* Opaque forward declaration */
-typedef struct _pqueue PQueue;
-
-PQueue* pqueue_create        (CompareFn comparefn);
-void    pqueue_free          (PQueue *pqueue);
-void    pqueue_free_all      (PQueue *pqueue, FreeFn freefn);
-int     pqueue_push          (PQueue *pqueue, void *data);
-void*   pqueue_pop           (PQueue *pqueue);
-void*   pqueue_top           (PQueue *pqueue);
-
-int     pqueue_is_empty      (PQueue *pqueue);
-
-unsigned long pqueue_size    (PQueue *pqueue);
-
-#if __cplusplus
+void util_out_of_memory(void)
+{
+    fprintf(stderr, "Out of memory. Exiting.\n");
+    exit(EXIT_FAILURE);
 }
-#endif
 
-#endif
+unsigned long util_pow2_next(unsigned long x)
+{
+    unsigned long i;
+
+    if (x == 0)
+        return 1;
+
+    x--;
+    for (i = 1; i < sizeof(unsigned long) * CHAR_BIT; i <<= 1)
+        x = x | x >> i;
+
+    return x + 1;
+}
+
+unsigned long util_pow2_prev(unsigned long x)
+{
+    unsigned long i;
+
+    if (x == 0)
+        return 1;
+
+    for (i = 1; i < sizeof(unsigned long) * CHAR_BIT; i <<= 1)
+        x = x | x >> i;
+
+    return x - (x >> 1);
+}

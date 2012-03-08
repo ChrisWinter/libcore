@@ -25,41 +25,49 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef __LIBCORE_DLIST_H__
+#define __LIBCORE_DLIST_H__
 
-#include "utilities.h"
+#if __cplusplus
+extern "C" {
+#endif
 
-void util_out_of_memory(void)
-{
-    fprintf(stderr, "Out of memory. Exiting.\n");
-    exit(EXIT_FAILURE);
+#include <libcore/types.h>
+
+/* Opaque forward declaration */
+typedef struct _dlist DList;
+typedef struct _dlist_node DListIterator;
+
+DList*  dlist_create        (void);
+void    dlist_free          (DList *dlist);
+void    dlist_free_all      (DList *dlist, FreeFn freefn);
+int     dlist_append        (DList *dlist, void *data);
+int     dlist_prepend       (DList *dlist, void *data);
+int     dlist_insert        (DList *dlist, void *data,
+                             unsigned long index);
+void*   dlist_remove_index  (DList *dlist, unsigned long index);
+int     dlist_remove_data   (DList *dlist, const void *data);
+void*   dlist_index         (DList *dlist, unsigned long index);
+int     dlist_is_empty      (DList *dlist);
+
+unsigned long dlist_size    (DList *dlist);
+
+/* Iterators */
+DListIterator*  dlist_begin (DList *dlist);
+DListIterator*  dlist_end   (DList *dlist);
+DListIterator*  dlist_next  (DListIterator *it);
+DListIterator*  dlist_prev  (DListIterator *it);
+
+DListIterator*  dlist_insert_at     (DListIterator *it, void *data);
+DListIterator*  dlist_insert_before (DListIterator *it, void *data);
+DListIterator*  dlist_insert_after  (DListIterator *it, void *data);
+
+void*   dlist_remove_at (DListIterator *it);
+
+void*   dlist_get_data  (DListIterator *it);
+
+#if __cplusplus
 }
+#endif
 
-unsigned long util_pow2_next(unsigned long x)
-{
-    unsigned long i;
-
-    if (x == 0)
-        return 1;
-
-    x--;
-    for (i = 1; i < sizeof(unsigned long) * CHAR_BIT; i <<= 1)
-        x = x | x >> i;
-
-    return x + 1;
-}
-
-unsigned long util_pow2_prev(unsigned long x)
-{
-    unsigned long i;
-
-    if (x == 0)
-        return 1;
-
-    for (i = 1; i < sizeof(unsigned long) * CHAR_BIT; i <<= 1)
-        x = x | x >> i;
-
-    return x - (x >> 1);
-}
+#endif

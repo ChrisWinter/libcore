@@ -28,8 +28,8 @@
 #include <stdlib.h>
 
 #include <seatest.h>
-#include <macros.h>
-#include <rbtree.h>
+#include <libcore/macros.h>
+#include <libcore/rbtree.h>
 
 static RBTree *test_tree = NULL;
 

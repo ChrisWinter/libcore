@@ -25,31 +25,31 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __LIBCORE_DLIST_H__
-#define __LIBCORE_DLIST_H__
+#ifndef __LIBCORE_SLIST_H__
+#define __LIBCORE_SLIST_H__
 
 #if __cplusplus
 extern "C" {
 #endif
 
-#include <types.h>
+#include <libcore/types.h>
 
 /* Opaque forward declaration */
-typedef struct _dlist DList;
+typedef struct _slist SList;
 
-DList*  dlist_create        (void);
-void    dlist_free          (DList *dlist);
-void    dlist_free_all      (DList *dlist, FreeFn freefn);
-int     dlist_append        (DList *dlist, void *data);
-int     dlist_prepend       (DList *dlist, void *data);
-int     dlist_insert        (DList *dlist, void *data,
+SList*  slist_create        (void);
+void    slist_free          (SList *slist);
+void    slist_free_all      (SList *slist, FreeFn freefn);
+int     slist_append        (SList *slist, void *data);
+int     slist_prepend       (SList *slist, void *data);
+int     slist_insert        (SList *slist, void *data,
                              unsigned long index);
-void*   dlist_remove_index  (DList *dlist, unsigned long index);
-int     dlist_remove_data   (DList *dlist, const void *data);
-void*   dlist_index         (DList *dlist, unsigned long index);
-int     dlist_is_empty      (DList *dlist);
+void*   slist_remove_index  (SList *slist, unsigned long index);
+int     slist_remove_data   (SList *slist, const void *data);
+void*   slist_index         (SList *slist, unsigned long index);
+int     slist_is_empty      (SList *slist);
 
-unsigned long dlist_size    (DList *dlist);
+unsigned long slist_size    (SList *slist);
 
 #if __cplusplus
 }

@@ -25,33 +25,79 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __LIBCORE_DEQUE_H__
-#define __LIBCORE_DEQUE_H__
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#if __cplusplus
-extern "C" {
-#endif
+#include <libcore/priority_queue.h>
+#include <libcore/heap.h>
 
-#include <types.h>
+struct _pqueue {
+    Heap *h;
+};
 
-/* Opaque forward declaration */
-typedef struct _deque Deque;
+PQueue* pqueue_create(CompareFn comparefn)
+{
+    assert(comparefn != NULL);
 
-Deque*  deque_create        (void);
-void    deque_free          (Deque *deque);
-void    deque_free_all      (Deque *deque, FreeFn freefn);
-int     deque_push_front    (Deque *deque, void *data);
-int     deque_push_back     (Deque *deque, void *data);
-void*   deque_pop_front     (Deque *deque);
-void*   deque_pop_back      (Deque *deque);
-void*   deque_front         (Deque *deque);
-void*   deque_back          (Deque *deque);
-int     deque_is_empty      (Deque *deque);
-
-unsigned long deque_size    (Deque *deque);
-
-#if __cplusplus
+    return (PQueue *)heap_create(comparefn);
 }
-#endif
 
-#endif
+/* Complexity: O(1) */
+void pqueue_free(PQueue *pqueue)
+{
+    assert(pqueue != NULL);
+
+    /* Only free pqueue container and heap container,
+     * not the data stored in the pqueue */
+    heap_free((Heap *)pqueue);
+}
+
+/* Complexity: O(n) */
+void pqueue_free_all(PQueue *pqueue, FreeFn freefn)
+{
+    assert(pqueue != NULL);
+
+    /* Free pqueue and heap containers, and all data */
+    heap_free_all((Heap *)pqueue, freefn);
+}
+
+/* Complexity: O(log n), worst-case */
+int pqueue_push(PQueue *pqueue, void *data)
+{
+    assert(pqueue != NULL);
+
+    return heap_push((Heap *)pqueue, data);
+}
+
+/* Complexity: O(log n) */
+void* pqueue_pop(PQueue *pqueue)
+{
+    assert(pqueue != NULL);
+
+    return heap_pop((Heap *)pqueue);
+}
+
+/* Complexity: O(1) */
+void* pqueue_top(PQueue *pqueue)
+{
+    assert(pqueue != NULL);
+
+    return heap_top((Heap *)pqueue);
+}
+
+/* Complexity: O(1) */
+int pqueue_is_empty(PQueue *pqueue)
+{
+    assert(pqueue != NULL);
+
+    return heap_is_empty((Heap *)pqueue);
+}
+
+/* Complexity: O(1) */
+unsigned long pqueue_size(PQueue *pqueue)
+{
+    assert(pqueue != NULL);
+
+    return heap_size((Heap *)pqueue);
+}

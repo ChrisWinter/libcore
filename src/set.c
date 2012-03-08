@@ -29,8 +29,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "rbtree.h"
-#include "set.h"
+#include <libcore/rbtree.h>
+#include <libcore/set.h>
 
 struct _set {
     RBTree *s;

@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #include <seatest.h>
-#include <stack.h>
+#include <libcore/stack.h>
 
 static Stack *test_stack = NULL;
 
