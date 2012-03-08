@@ -58,12 +58,6 @@ DListIterator*  dlist_end   (DList *dlist);
 DListIterator*  dlist_next  (DListIterator *it);
 DListIterator*  dlist_prev  (DListIterator *it);
 
-DListIterator*  dlist_insert_at     (DListIterator *it, void *data);
-DListIterator*  dlist_insert_before (DListIterator *it, void *data);
-DListIterator*  dlist_insert_after  (DListIterator *it, void *data);
-
-void*   dlist_remove_at (DListIterator *it);
-
 void*   dlist_get_data  (DListIterator *it);
 
 #if __cplusplus
