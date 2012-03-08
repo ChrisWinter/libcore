@@ -36,7 +36,6 @@ extern "C" {
 
 /* Opaque forward declaration */
 typedef struct _dlist DList;
-typedef struct _dlist_node DListIterator;
 
 DList*  dlist_create        (void);
 void    dlist_free          (DList *dlist);
@@ -51,14 +50,6 @@ void*   dlist_index         (DList *dlist, unsigned long index);
 int     dlist_is_empty      (DList *dlist);
 
 unsigned long dlist_size    (DList *dlist);
-
-/* Iterators */
-DListIterator*  dlist_begin (DList *dlist);
-DListIterator*  dlist_end   (DList *dlist);
-DListIterator*  dlist_next  (DListIterator *it);
-DListIterator*  dlist_prev  (DListIterator *it);
-
-void*   dlist_get_data  (DListIterator *it);
 
 #if __cplusplus
 }
