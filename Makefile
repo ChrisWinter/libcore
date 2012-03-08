@@ -83,7 +83,7 @@ DEPS= $(LIBCORE_OBJS:.o=.d)
 
 libcore: $(LIBCORE_OBJS)
 	ar rcs libcore.a $(LIBCORE_OBJS)
-	$(CC) -shared -Wl,-soname,libcore.so.0 -o libcore.so.0.0 $(LIBCORE_OBJS)
+	$(CC) -shared -Wl,-soname,libcore.so -o libcore.so.0.0 $(LIBCORE_OBJS)
 
 tests: libcore $(SEATEST_OBJS) $(TEST_PROGRAMS)
 
