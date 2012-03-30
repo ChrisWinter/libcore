@@ -44,13 +44,6 @@ struct _darray {
 };
 
 
-static int darray_maybe_resize(DArray *darray, long nitems);
-static int merge(DArray *src, unsigned long start, unsigned long middle,
-        unsigned long end, CompareFn comparefn);
-static int merge_sort(DArray *src,
-        unsigned long start, unsigned long end, CompareFn comparefn);
-
-
 /* nitems indicates if the DArray should grow or shrink. >0 if
  * adding items, <0 if removing items.
  */
@@ -182,6 +175,24 @@ DArray* darray_create(void)
     return a;
 }
 
+DArray* darray_create_size(unsigned long reserved_size)
+{
+    DArray *a;
+
+    a = malloc(sizeof(DArray));
+
+    a->data = malloc(SIZE_OF_VOIDP * reserved_size);
+    if(NULL == a->data) {
+        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
+        return NULL;
+    }
+
+    a->size = reserved_size;
+    a->capacity = reserved_size;
+
+    return a;
+}
+
 /* Complexity: O(1) */
 void darray_free(DArray *darray)
 {
@@ -260,7 +271,7 @@ int darray_prepend(DArray *darray, void *data)
 }
 
 /* Complexity: O(n), worst-case */
-int darray_insert(DArray *darray, void *data, unsigned long index)
+int darray_insert(DArray *darray, unsigned long index, void *data)
 {
     assert(darray != NULL);
 
@@ -311,7 +322,7 @@ void* darray_remove(DArray *darray, unsigned long index)
 }
 
 /* Complexity: O(1) */
-void* darray_index(DArray *darray, unsigned long index)
+void* darray_index(const DArray *darray, unsigned long index)
 {
     assert(darray != NULL);
     assert(darray->data != NULL);
@@ -445,7 +456,7 @@ int darray_merge(DArray *darray1, DArray *darray2, CompareFn comparefn)
 }
 
 /* Complexity: O(n) */
-int darray_is_sorted(DArray *darray, CompareFn comparefn)
+int darray_is_sorted(const DArray *darray, CompareFn comparefn)
 {
     unsigned long i;
 
@@ -471,7 +482,7 @@ int darray_is_sorted(DArray *darray, CompareFn comparefn)
 }
 
 /* Complexity: O(1) */
-int darray_is_empty(DArray *darray)
+int darray_is_empty(const DArray *darray)
 {
     assert(darray != NULL);
 
@@ -479,7 +490,7 @@ int darray_is_empty(DArray *darray)
 }
 
 /* Complexity: O(1) */
-unsigned long darray_size(DArray *darray)
+unsigned long darray_size(const DArray *darray)
 {
     assert(darray != NULL);
 
@@ -487,7 +498,7 @@ unsigned long darray_size(DArray *darray)
 }
 
 /* Complexity: O(1) */
-unsigned long darray_capacity(DArray *darray)
+unsigned long darray_capacity(const DArray *darray)
 {
     assert(darray != NULL);
 

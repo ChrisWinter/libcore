@@ -37,29 +37,30 @@ extern "C" {
 /* Opaque forward declaration */
 typedef struct _darray DArray;
 
-DArray* darray_create   (void);
-void    darray_free     (DArray *darray);
-void    darray_free_all (DArray *darray, FreeFn freefn);
-int     darray_append   (DArray *darray, void *data);
-int     darray_prepend  (DArray *darray, void *data);
-int     darray_insert   (DArray *darray, void *data,
-                         unsigned long index);
-void*   darray_remove   (DArray *darray, unsigned long index);
-void*   darray_index    (DArray *darray, unsigned long index);
-int     darray_replace  (DArray *darray, unsigned long index,
-                         void *data);
-int     darray_swap     (DArray *darray, unsigned long index1,
-                         unsigned long index2);
-int     darray_concat   (DArray *darray1, DArray *darray2);
-int     darray_sort     (DArray *darray, CompareFn comparefn);
-int     darray_merge    (DArray *darray1, DArray *darray2,
-                         CompareFn comparefn);
+DArray* darray_create       (void);
+DArray* darray_create_size  (unsigned long reserved_size);
+void    darray_free         (DArray *darray);
+void    darray_free_all     (DArray *darray, FreeFn freefn);
+int     darray_append       (DArray *darray, void *data);
+int     darray_prepend      (DArray *darray, void *data);
+int     darray_insert       (DArray *darray, unsigned long index,
+                             void *data);
+void*   darray_remove       (DArray *darray, unsigned long index);
+void*   darray_index        (const DArray *darray, unsigned long index);
+int     darray_replace      (DArray *darray, unsigned long index,
+                             void *data);
+int     darray_swap         (DArray *darray, unsigned long index1,
+                             unsigned long index2);
+int     darray_concat       (DArray *darray1, DArray *darray2);
+int     darray_sort         (DArray *darray, CompareFn comparefn);
+int     darray_merge        (DArray *darray1, DArray *darray2,
+                             CompareFn comparefn);
 
-int     darray_is_sorted    (DArray *darray, CompareFn comparefn);
-int     darray_is_empty     (DArray *darray);
+int     darray_is_sorted    (const DArray *darray, CompareFn comparefn);
+int     darray_is_empty     (const DArray *darray);
 
-unsigned long darray_size       (DArray *darray);
-unsigned long darray_capacity   (DArray *darray);
+unsigned long darray_size       (const DArray *darray);
+unsigned long darray_capacity   (const DArray *darray);
 
 #if __cplusplus
 }
