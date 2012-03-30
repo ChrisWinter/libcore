@@ -37,14 +37,6 @@ struct _heap {
     CompareFn comparefn;
 };
 
-
-static unsigned long parent_of(unsigned long index);
-static unsigned long left_child_of(unsigned index);
-static unsigned long right_child_of(unsigned index);
-static void heapify_up(Heap *heap, unsigned long index);
-static void heapify_down(Heap *heap, unsigned long index);
-
-
 static unsigned long parent_of(unsigned long index)
 {
     return ((index - 1) / 2);
