@@ -26,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include <seatest.h>
 #include <libcore/darray.h>
@@ -170,7 +171,7 @@ void test_darray_insert(void)
         val = malloc(sizeof(unsigned long));
         if(val != NULL) {
             *val = i;
-            darray_insert(a, val, darray_size(a));
+            darray_insert(a, darray_size(a), val);
             assert_true(darray_size(a) == (i + 1));
 
             val = darray_index(a, i);
@@ -239,7 +240,7 @@ void darray_setup_ints_random(void)
     assert_true(darray_is_empty(a));
 
     for(i = 0; i < 100000; i++) {
-        val = make_ulong_ptr(arc4random() % 100000);
+        val = make_ulong_ptr(rand() % 100000);
         if(val != NULL) {
             darray_append(a, val);
         }
@@ -288,11 +289,11 @@ void darray_double_setup_random_ints(void)
     assert_true(darray_is_empty(b));
 
     for(i = 0; i < 100000; i++) {
-        val = make_ulong_ptr(arc4random() % 100000);
+        val = make_ulong_ptr(rand() % 100000);
         if(val != NULL) {
             darray_append(a, val);
         }
-        val = make_ulong_ptr(arc4random() % 100000);
+        val = make_ulong_ptr(rand() % 100000);
         if(val != NULL) {
             darray_append(b, val);
         }
@@ -585,7 +586,7 @@ void test_darray_concat_empty_with_existing(void)
 
 void test_darray_concat_existing_with_existing(void)
 {
-    unsigned long old_a_size, old_a_capacity;
+    unsigned long old_a_size;
     unsigned long old_b_size, old_b_capacity;
 
     assert_true(a != NULL);
@@ -595,7 +596,6 @@ void test_darray_concat_existing_with_existing(void)
     assert_false(darray_is_empty(b));
 
     old_a_size = darray_size(a);
-    old_a_capacity = darray_capacity(a);
 
     old_b_size = darray_size(b);
     old_b_capacity = darray_capacity(b);
@@ -778,7 +778,7 @@ void test_darray_merge_empty_with_existing(void)
 
 void test_darray_merge_existing_with_existing(void)
 {
-    unsigned long old_a_size, old_a_capacity;
+    unsigned long old_a_size;
     unsigned long old_b_size, old_b_capacity;
 
     assert_true(a != NULL);
@@ -788,7 +788,6 @@ void test_darray_merge_existing_with_existing(void)
     assert_false(darray_is_empty(b));
 
     old_a_size = darray_size(a);
-    old_a_capacity = darray_capacity(a);
 
     old_b_size = darray_size(b);
     old_b_capacity = darray_capacity(b);
@@ -844,5 +843,10 @@ void all_tests(void)
 
 int main(int argc, char *argv[])
 {
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    srand(tv.tv_usec * tv.tv_sec);
+
     return seatest_testrunner(argc, argv, all_tests, NULL, NULL);
 }
