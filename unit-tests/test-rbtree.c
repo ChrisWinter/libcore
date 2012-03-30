@@ -26,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include <seatest.h>
 #include <libcore/macros.h>
@@ -61,14 +62,14 @@ int ulong_compare(const unsigned long *a, const unsigned long *b)
 
 void rbtree_setup_ints(void)
 {
-    unsigned long i, *val, count = ((arc4random() % 100000) + 1);
+    unsigned long i, *val, count = ((rand() % 100000) + 1);
 
     test_tree = rbtree_create((CompareFn)ulong_compare);
     assert_true(test_tree != NULL);
     assert_true(rbtree_is_empty(test_tree));
 
     for(i = 0; i < count; i++) {
-        val = make_ulong_ptr((arc4random() % 10000));
+        val = make_ulong_ptr((rand() % 10000));
         if(val != NULL) {
             rbtree_insert_equal(test_tree, val, val);
         }
@@ -178,10 +179,10 @@ void test_rbtree_random_insert_and_remove(void)
     assert_true(rbtree_is_empty(test_tree));
 
     for(i = 0; i < count; i++) {
-        val = make_ulong_ptr((arc4random_uniform(100)));
+        val = make_ulong_ptr((rand() % 100));
         if(val != NULL) {
             old_size = rbtree_size(test_tree);
-            if(arc4random_uniform(2)) {
+            if(rand() % 2) {
                 if(rbtree_insert_equal(test_tree, val, val) == 0) {
                     inserts++;
                     assert_true(rbtree_size(test_tree) == (old_size + 1));
@@ -227,5 +228,10 @@ void all_tests(void)
 
 int main(int argc, char *argv[])
 {
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    srand(tv.tv_usec * tv.tv_sec);
+
     return seatest_testrunner(argc, argv, all_tests, NULL, NULL);
 }
