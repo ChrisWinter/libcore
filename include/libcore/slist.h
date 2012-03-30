@@ -42,8 +42,7 @@ void    slist_free          (SList *slist);
 void    slist_free_all      (SList *slist, FreeFn freefn);
 int     slist_append        (SList *slist, void *data);
 int     slist_prepend       (SList *slist, void *data);
-int     slist_insert        (SList *slist, void *data,
-                             unsigned long index);
+int     slist_insert        (SList *slist, unsigned long index, void *data);
 void*   slist_remove_index  (SList *slist, unsigned long index);
 int     slist_remove_data   (SList *slist, const void *data);
 void*   slist_index         (SList *slist, unsigned long index);

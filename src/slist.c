@@ -44,8 +44,6 @@ struct _slist {
     unsigned long size;
 };
 
-static void _slist_free(SList *slist, int free_data, FreeFn freefn);
-static struct _slist_node* get_node_before_index(SList *slist, unsigned long index);
 
 static void _slist_free(SList *slist, int free_data, FreeFn freefn)
 {
@@ -133,17 +131,17 @@ void slist_free_all(SList *slist, FreeFn freefn)
 /* Complexity: O(1) */
 int slist_append(SList *slist, void *data)
 {
-    return slist_insert(slist, data, slist->size);
+    return slist_insert(slist, slist->size, data);
 }
 
 /* Complexity: O(1) */
 int slist_prepend(SList *slist, void *data)
 {
-    return slist_insert(slist, data, 0);
+    return slist_insert(slist, 0, data);
 }
 
 /* Complexity: O(n), worst-case */
-int slist_insert(SList *slist, void *data, unsigned long index)
+int slist_insert(SList *slist, unsigned long index, void *data)
 {
     struct _slist_node *node, *new_node;
 
