@@ -121,7 +121,7 @@ void test_dlist_insert_at_front(void)
 
     old_size = dlist_size(test_dlist);
     val = make_ulong_ptr(8888);
-    assert_true(dlist_insert(test_dlist, val, 0) == 0);
+    assert_true(dlist_insert(test_dlist, 0, val) == 0);
 
     /* Verify */
     val = NULL;
@@ -137,7 +137,7 @@ void test_dlist_insert_at_back(void)
 
     old_size = dlist_size(test_dlist);
     val = make_ulong_ptr(7777);
-    assert_true(dlist_insert(test_dlist, val, old_size) == 0);
+    assert_true(dlist_insert(test_dlist, old_size, val) == 0);
 
     /* Verify */
     val = NULL;
@@ -153,7 +153,7 @@ void test_dlist_insert_in_middle(void)
 
     old_size = dlist_size(test_dlist);
     val = make_ulong_ptr(6666);
-    assert_true(dlist_insert(test_dlist, val, old_size / 2) == 0);
+    assert_true(dlist_insert(test_dlist, old_size / 2, val) == 0);
 
     /* Verify */
     val = NULL;

@@ -38,6 +38,7 @@
 struct _dlist_node {
     void *data;
     struct _dlist_node *next, *prev;
+    struct _dlist *dlist;
 };
 
 struct _dlist {
@@ -45,8 +46,6 @@ struct _dlist {
     unsigned long size;
 };
 
-static void _dlist_free(DList *dlist, int free_data, FreeFn freefn);
-static struct _dlist_node* get_node_at_index(DList *dlist, unsigned long index);
 
 static void _dlist_free(DList *dlist, int free_data, FreeFn freefn)
 {
@@ -99,10 +98,28 @@ static struct _dlist_node* get_node_at_index(DList *dlist, unsigned long index)
     return node;
 }
 
+struct _dlist_node* _make_node(void)
+{
+    struct _dlist_node *node;
+
+    node = malloc(sizeof(struct _dlist_node));
+    if(NULL == node) {
+        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
+        return NULL;
+    }
+
+    node->dlist = NULL;
+    node->next  = NULL;
+    node->prev  = NULL;
+    node->data  = NULL;
+
+    return node;
+}
+
 DList* dlist_create(void)
 {
-    DList *new_list;
     struct _dlist_node *sentinel;
+    DList *new_list;
 
     /* List container */
     new_list = malloc(sizeof(struct _dlist));
@@ -112,13 +129,12 @@ DList* dlist_create(void)
     }
 
     /* Sentinel node */
-    sentinel = malloc(sizeof(struct _dlist_node));
+    sentinel = _make_node();
     if(NULL == sentinel) {
-        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
+        free(new_list);
         return NULL;
     }
 
-    sentinel->data = NULL;
     sentinel->prev = sentinel;
     sentinel->next = sentinel;
 
@@ -150,32 +166,30 @@ void dlist_free_all(DList *dlist, FreeFn freefn)
 /* Complexity: O(1) */
 int dlist_append(DList *dlist, void *data)
 {
-    return dlist_insert(dlist, data, dlist->size);
+    return dlist_insert(dlist, dlist->size, data);
 }
 
 /* Complexity: O(1) */
 int dlist_prepend(DList *dlist, void *data)
 {
-    return dlist_insert(dlist, data, 0);
+    return dlist_insert(dlist, 0, data);
 }
 
 /* Complexity: O(n/2), worst-case */
-int dlist_insert(DList *dlist, void *data, unsigned long index)
+int dlist_insert(DList *dlist, unsigned long index, void *data)
 {
     struct _dlist_node *node, *new_node;
 
     assert(dlist != NULL);
     assert(index <= dlist->size);
 
-    new_node = malloc(sizeof(struct _dlist_node));
+    new_node = _make_node();
     if(NULL == new_node) {
-        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
         return -1;
     }
 
     new_node->data  = data;
-    new_node->next  = NULL;
-    new_node->prev  = NULL;
+    new_node->dlist = dlist;
 
     node = get_node_at_index(dlist, index);
 
@@ -287,4 +301,129 @@ unsigned long dlist_size(DList *dlist)
     assert(dlist != NULL);
 
     return (dlist->size);
+}
+
+DListIterator* dlist_begin(DList *dlist)
+{
+    struct _dlist_node *it;
+
+    assert(dlist != NULL);
+
+    it = head(dlist);
+
+    if(it == dlist->nil) {
+        return NULL;
+    }
+
+    return it;
+}
+
+DListIterator* dlist_end(DList *dlist)
+{
+    struct _dlist_node *it;
+
+    assert(dlist != NULL);
+
+    it = tail(dlist);
+
+    if(it == dlist->nil) {
+        return NULL;
+    }
+
+    return it;
+}
+
+DListIterator* dlist_next(DListIterator *it)
+{
+    assert(it != NULL);
+
+    if(it->next == it->dlist->nil) {
+        return NULL;
+    }
+
+    return it->next;
+}
+
+DListIterator* dlist_prev(DListIterator *it)
+{
+    assert(it != NULL);
+
+    if(it->prev == it->dlist->nil) {
+        return NULL;
+    }
+
+    return it->prev;
+}
+
+DListIterator* dlist_insert_before(DListIterator *it, void *data)
+{
+    struct _dlist_node *new_node;
+
+    assert(it != NULL);
+
+    new_node = _make_node();
+    if(NULL == new_node) {
+        return NULL;
+    }
+
+    new_node->data  = data;
+    new_node->dlist = it->dlist;
+
+    new_node->prev = it->prev;
+    new_node->next = it;
+
+    it->prev->next = new_node;
+    it->prev = new_node;
+
+    it->dlist->size++;
+
+    return new_node;
+}
+
+DListIterator* dlist_insert_after(DListIterator *it, void *data)
+{
+    struct _dlist_node *new_node;
+
+    assert(it != NULL);
+
+    new_node = _make_node();
+    if(NULL == new_node) {
+        return NULL;
+    }
+
+    new_node->data  = data;
+    new_node->dlist = it->dlist;
+
+    new_node->prev = it;
+    new_node->next = it->next;
+
+    it->next->prev = new_node;
+    it->next = new_node;
+
+    it->dlist->size++;
+
+    return new_node;
+}
+
+void* dlist_remove_at(DListIterator *it)
+{
+    void *ret;
+
+    assert(it != NULL);
+
+    ret = it->data;
+    it->prev->next = it->next;
+    it->next->prev = it->prev;
+
+    it->dlist->size--;
+    free(it);
+
+    return ret;
+}
+
+void* dlist_get_data(DListIterator *it)
+{
+    assert(it != NULL);
+
+    return it->data;
 }
