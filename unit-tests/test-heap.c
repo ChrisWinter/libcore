@@ -26,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include <seatest.h>
 #include <libcore/heap.h>
@@ -87,7 +88,7 @@ void heap_setup_ints_random(void)
     assert_true(heap_is_empty(test_heap));
 
     for(i = 0; i < 100000; i++) {
-        val = make_ulong_ptr(arc4random() % 100000);
+        val = make_ulong_ptr(rand() % 100000);
         if(val != NULL) {
             heap_push(test_heap, val);
         }
@@ -140,12 +141,12 @@ void heap_double_setup_ints_random(void)
     assert_true(heap_is_empty(test_heap2));
 
     for(i = 0; i < 100000; i++) {
-        val = make_ulong_ptr(arc4random() % 100000);
+        val = make_ulong_ptr(rand() % 100000);
         if(val != NULL) {
             heap_push(test_heap, val);
         }
 
-        val = make_ulong_ptr(arc4random() % 100000);
+        val = make_ulong_ptr(rand() % 100000);
         if(val != NULL) {
             heap_push(test_heap2, val);
         }
@@ -559,5 +560,10 @@ void all_tests(void)
 
 int main(int argc, char *argv[])
 {
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    srand(tv.tv_usec * tv.tv_sec);
+
     return seatest_testrunner(argc, argv, all_tests, NULL, NULL);
 }
