@@ -419,6 +419,8 @@ static void* _rbtree_remove(RBTree *rbtree, struct _rbtree_node *z)
     _node_color y_color;
     void *ret;
 
+    x_parent = NULL;
+
     if(NULL == z->left || NULL == z->right) {
         /* z has at most one child */
         y = z;
