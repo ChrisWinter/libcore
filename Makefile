@@ -42,6 +42,8 @@ TEST_DIR= unit-tests
 SEATEST_OBJS= \
 	ext/seatest/seatest.o
 
+LIBCORE_LIB= libcore.so.0.0
+
 LIBCORE_OBJS= \
 	src/utilities.o \
 	src/darray.o \
@@ -53,7 +55,11 @@ LIBCORE_OBJS= \
 	src/heap.o \
 	src/priority_queue.o \
 	src/rbtree.o \
-	src/set.o
+	src/set.o \
+	src/map.o \
+	src/string.o \
+	src/graph.o \
+	src/graph-algorithms.o
 
 UNIT_TESTS= \
 	test-darray \
@@ -68,38 +74,39 @@ UNIT_TESTS= \
 	test-set
 
 TEST_PROGRAMS= $(addprefix $(TEST_DIR)/, $(UNIT_TESTS))
-TEST_OBJS= $(addsuffix .o, $(UNIT_TESTS))
+TEST_OBJS= $(addsuffix .o, $(TEST_PROGRAMS))
 
 all: tests
 
 DEPS= $(LIBCORE_OBJS:.o=.d)
+DEPS+= $(TEST_OBJS:.o=.d)
 
 -include $(DEPS)
 
-.PHONY: libcore tests clean all install uninstall
+.PHONY: tests clean all install uninstall
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -MMD -c $< -o $@
 
-libcore: $(LIBCORE_OBJS)
+$(LIBCORE_LIB): $(LIBCORE_OBJS)
 	ar rcs libcore.a $(LIBCORE_OBJS)
-	$(CC) -shared -Wl,-soname,libcore.so -o libcore.so.0.0 $(LIBCORE_OBJS)
+	$(CC) -shared -Wl,-soname,libcore.so -o $(LIBCORE_LIB) $(LIBCORE_OBJS)
 
-tests: libcore $(SEATEST_OBJS) $(TEST_PROGRAMS)
+tests: $(LIBCORE_LIB) $(SEATEST_OBJS) $(TEST_PROGRAMS)
 
 $(TEST_PROGRAMS): % : %.c
-	$(CC) $(CFLAGS_TESTS) $(INCLUDES) -I./ext/seatest/ $(SEATEST_OBJS) -o $@ $< $(LDFLAGS_TESTS) $(LIBS_TESTS)
+	$(CC) $(CFLAGS_TESTS) $(INCLUDES) -I./ext/seatest/ -MMD $(SEATEST_OBJS) -o $@ $< $(LDFLAGS_TESTS) $(LIBS_TESTS)
 
 clean:
 	rm $(DEPS) $(LIBCORE_OBJS) *.so.* *.a $(TEST_PROGRAMS)
 
-install: libcore
+install: $(LIBCORE_LIB)
 	$(INSTALL) -d -m 755 '$(INSTALL_INCDIR)'
 	$(INSTALL) -d -m 755 '$(INSTALL_LIBDIR)'
 	cp -r include/libcore $(INSTALL_INCDIR)/
 	cp *.so.* $(INSTALL_LIBDIR)
 	cp *.a $(INSTALL_LIBDIR)
-	ln -s $(INSTALL_LIBDIR)/libcore.so.0.0 $(INSTALL_LIBDIR)/libcore.so
+	ln -s $(INSTALL_LIBDIR)/$(LIBCORE_LIB) $(INSTALL_LIBDIR)/libcore.so
 
 uninstall:
 	rm -fr $(INSTALL_INCDIR)/libcore
