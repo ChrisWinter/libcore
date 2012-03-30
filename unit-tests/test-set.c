@@ -26,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include <seatest.h>
 #include <libcore/macros.h>
@@ -130,14 +131,14 @@ void set_teardown_known_ints(void)
 
 void set_setup_ints(void)
 {
-    unsigned long i, *val, count = ((arc4random() % 100000) + 1);
+    unsigned long i, *val, count = ((rand() % 100000) + 1);
 
     test_set1 = set_create((CompareFn)ulong_compare);
     assert_true(test_set1 != NULL);
     assert_true(set_is_empty(test_set1));
 
     for(i = 0; i < count; i++) {
-        val = make_ulong_ptr((arc4random() % 50000));
+        val = make_ulong_ptr((rand() % 50000));
         if(val != NULL) {
             set_insert(test_set1, val);
         }
@@ -239,10 +240,10 @@ void test_set_random_insert_and_remove(void)
     assert_true(set_is_empty(test_set1));
 
     for(i = 0; i < count; i++) {
-        val = make_ulong_ptr((arc4random_uniform(100)));
+        val = make_ulong_ptr((rand() % 100));
         if(val != NULL) {
             old_size = set_size(test_set1);
-            if(arc4random_uniform(2)) {
+            if(rand() % 2) {
                 if(set_insert(test_set1, val) == 0) {
                     inserts++;
                     assert_true(set_size(test_set1) == (old_size + 1));
@@ -439,5 +440,10 @@ void all_tests(void)
 
 int main(int argc, char *argv[])
 {
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    srand(tv.tv_usec * tv.tv_sec);
+
     return seatest_testrunner(argc, argv, all_tests, NULL, NULL);
 }
