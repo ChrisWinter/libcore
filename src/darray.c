@@ -307,9 +307,12 @@ void* darray_remove(DArray *darray, unsigned long index)
 
     ret = darray->data[index];
 
-    memmove(&darray->data[index + 1],
-        &darray->data[index],
-        SIZE_OF_VOIDP * (darray->size - index - 1));
+    /* Don't need to memmove if removing last element */
+    if(index < (darray->size - 1)) {
+        memmove(&darray->data[index + 1],
+                &darray->data[index],
+                SIZE_OF_VOIDP * (darray->size - index - 1));
+    }
 
     darray->data[darray->size - 1] = NULL;
     darray->size--;
