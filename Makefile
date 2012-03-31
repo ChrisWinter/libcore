@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 CC= gcc
-CFLAGS= -Wall -Werror -fPIC -O0 -ansi -pedantic -g
+CFLAGS= -Wall -Werror -fPIC -O3 -ansi -pedantic
 INCLUDES= -I./include/ -I/usr/local/include
 
 CFLAGS_TESTS= -Wall -Werror -O0 -ansi -pedantic -g
