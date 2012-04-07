@@ -31,7 +31,7 @@
 #include <string.h>
 
 #include <libcore/graph.h>
-
+#include <libcore/darray.h>
 
 /* Type definitions */
 
@@ -292,12 +292,26 @@ int graph_edge_add(Graph *g, Edge *e)
         }
 
         if((v == e->target)) {
+            /* For undirected graphs, insert an extra edge to allow
+             * traversal from the target vertex back to the source
+             * vertex, except in the case where an edge is a loop.
+             */
             if(graph_is_undirected(g)) {
-                darray_append(v->edges, edge_create(e->target, e->source, e->weight));
                 v->out_degree++;
+
+                if(e->target != e->source) {
+                    darray_append(v->edges,
+                        edge_create(e->target, e->source, e->weight));
+                } else {
+                    /* Loops are counted twice */
+                    v->out_degree++;
+                }
             } else {
                 /* Keep track of the number of edges directed
                  * toward this vertex, but not which edges
+                 *
+                 * TODO Keep a separate in-edge list for each
+                 * node?
                  */
                 v->in_degree++;
             }
@@ -443,7 +457,7 @@ unsigned long graph_vertex_degree(const Graph *g, const Vertex *v)
     assert(g != NULL);
     assert(v != NULL);
 
-    return darray_size(v->edges);
+    return v->in_degree + v->out_degree;
 }
 
 DArray* graph_vertex_get_adj_edges(const Graph *g, const Vertex *v)
