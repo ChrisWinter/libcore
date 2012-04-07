@@ -36,12 +36,23 @@
 #include <libcore/stack.h>
 #include <libcore/graph-algorithms.h>
 
-/* These algorithms are based on the descriptions given in
- * "The Algorithm Design Manual", Second Edition, by Steven S. Skiena
- * (Springer, 2008).
+#define DEBUG   0
+#define DBG(...) \
+    do { if(DEBUG) fprintf(stderr, __VA_ARGS__); } while(0)
+
+/* These algorithms are loosely based on the ideas and descriptions
+ * given in "The Algorithm Design Manual", Second Edition, by Steven
+ * S. Skiena (Springer, 2008). The code in this book is unreliable since
+ * it is riddled with many bugs.
  */
 
-static GraphSearchCtx* _graph_search_ctx_create(const Graph *g)
+enum _search_type {
+    BFS,
+    DFS
+};
+
+static GraphSearchCtx* _graph_search_ctx_create(const Graph *g,
+        enum _search_type search_type)
 {
     GraphSearchCtx *ctx;
     unsigned long index;
@@ -70,18 +81,23 @@ static GraphSearchCtx* _graph_search_ctx_create(const Graph *g)
         return NULL;
     }
 
-    ctx->entry_time = malloc(sizeof(unsigned long) * graph_vertex_count(g));
-    if(NULL == ctx->entry_time) {
-        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
-        free(ctx);
-        return NULL;
-    }
+    ctx->entry_time = NULL;
+    ctx->exit_time = NULL;
 
-    ctx->exit_time = malloc(sizeof(unsigned long) * graph_vertex_count(g));
-    if(NULL == ctx->exit_time) {
-        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
-        free(ctx);
-        return NULL;
+    if(DFS == search_type) {
+        ctx->entry_time = malloc(sizeof(unsigned long) * graph_vertex_count(g));
+        if(NULL == ctx->entry_time) {
+            fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
+            free(ctx);
+            return NULL;
+        }
+
+        ctx->exit_time = malloc(sizeof(unsigned long) * graph_vertex_count(g));
+        if(NULL == ctx->exit_time) {
+            fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
+            free(ctx);
+            return NULL;
+        }
     }
 
     ctx->parent = darray_create_size(graph_vertex_count(g));
@@ -94,8 +110,12 @@ static GraphSearchCtx* _graph_search_ctx_create(const Graph *g)
     for(index = 0; index < graph_vertex_count(g); index++) {
         ctx->discovered[index] = 0;
         ctx->processed[index]  = 0;
-        ctx->entry_time[index] = 0;
-        ctx->exit_time[index]  = 0;
+
+        if(DFS == search_type) {
+            ctx->entry_time[index] = 0;
+            ctx->exit_time[index]  = 0;
+        }
+
         darray_replace(ctx->parent, index, NULL);
     }
 
@@ -120,7 +140,7 @@ GraphSearchCtx* graph_breadth_first_search(const Graph *g,
         GraphProcessVertexLateFn    vertex_late_fn,
         void                        *userdata)
 {
-    unsigned long index, time;
+    unsigned long index;
     GraphSearchCtx *ctx;
     Vertex *v, *succ;
     Queue *q;
@@ -128,7 +148,7 @@ GraphSearchCtx* graph_breadth_first_search(const Graph *g,
 
     assert(g != NULL);
 
-    ctx = _graph_search_ctx_create(g);
+    ctx = _graph_search_ctx_create(g, BFS);
     if(NULL == ctx) {
         fprintf(stderr, "Failed to create graph search context (%s:%d)\n",
                 __FUNCTION__, __LINE__);
@@ -138,15 +158,11 @@ GraphSearchCtx* graph_breadth_first_search(const Graph *g,
     q = queue_create();
     queue_enqueue(q, (Vertex *)start);
 
-    time = 1;
-
     /* Mark start vertex as discovered */
     ctx->discovered[vertex_get_index(start)] = 1;
 
     while(!queue_is_empty(q)) {
         v = (Vertex *)queue_dequeue(q);
-
-        ctx->entry_time[vertex_get_index(v)] = time;
 
         if(vertex_early_fn != NULL) {
             vertex_early_fn(v, ctx, userdata);
@@ -155,9 +171,6 @@ GraphSearchCtx* graph_breadth_first_search(const Graph *g,
                 goto done;
             }
         }
-
-        /* Mark vertex v as processed */
-        ctx->processed[vertex_get_index(v)] = 1;
 
         for(index = 0; index < vertex_edge_count(v); index++) {
             e = (Edge *)darray_index(vertex_get_edges(v), index);
@@ -176,11 +189,10 @@ GraphSearchCtx* graph_breadth_first_search(const Graph *g,
             }
 
             if(!ctx->discovered[vertex_get_index(succ)]) {
-                queue_enqueue(q, succ);
-                /* Mark succ as discovered */
                 ctx->discovered[vertex_get_index(succ)] = 1;
                 /* Set parent of succ as v */
                 darray_replace(ctx->parent, vertex_get_index(succ), v);
+                queue_enqueue(q, succ);
             }
         }
 
@@ -192,9 +204,8 @@ GraphSearchCtx* graph_breadth_first_search(const Graph *g,
             }
         }
 
-        time++;
-
-        ctx->exit_time[vertex_get_index(v)] = time;
+        /* Mark vertex v as processed */
+        ctx->processed[vertex_get_index(v)] = 1;
     }
 
 done:
@@ -218,7 +229,7 @@ GraphSearchCtx* graph_depth_first_search(const Graph *g,
 
     assert(g != NULL);
 
-    ctx = _graph_search_ctx_create(g);
+    ctx = _graph_search_ctx_create(g, DFS);
     if(NULL == ctx) {
         fprintf(stderr, "Failed to create graph search context (%s:%d)\n",
                 __FUNCTION__, __LINE__);
@@ -230,61 +241,65 @@ GraphSearchCtx* graph_depth_first_search(const Graph *g,
 
     time = 1;
 
-    /* Mark start vertex as discovered */
-    ctx->discovered[vertex_get_index(start)] = 1;
-
     while(!stack_is_empty(s)) {
-        v = (Vertex *)stack_pop(s);
+        v = (Vertex *)stack_top(s);
 
-        ctx->entry_time[vertex_get_index(v)] = time;
+        if(!ctx->discovered[vertex_get_index(v)]) {
+            /* Mark v as discovered */
+            ctx->discovered[vertex_get_index(v)] = 1;
+            ctx->entry_time[vertex_get_index(v)] = time++;
 
-        if(vertex_early_fn != NULL) {
-            vertex_early_fn(v, ctx, userdata);
+            if(vertex_early_fn != NULL) {
+                vertex_early_fn(v, ctx, userdata);
 
-            if(ctx->stop_search) {
-                goto done;
-            }
-        }
-
-        /* Mark vertex v as processed */
-        ctx->processed[vertex_get_index(v)] = 1;
-
-        for(index = 0; index < vertex_edge_count(v); index++) {
-            e = (Edge *)darray_index(vertex_get_edges(v), index);
-            succ = edge_get_target(e);
-
-            if((!ctx->processed[vertex_get_index(succ)] &&
-                        darray_index(ctx->parent, vertex_get_index(v)) != succ) ||
-                    graph_is_directed(g)) {
-                if(edge_fn != NULL) {
-                    edge_fn(e, ctx, userdata);
-
-                    if(ctx->stop_search) {
-                        goto done;
-                    }
+                if(ctx->stop_search) {
+                    goto done;
                 }
             }
 
-            if(!ctx->discovered[vertex_get_index(succ)]) {
-                stack_push(s, succ);
-                /* Mark succ as discovered */
-                ctx->discovered[vertex_get_index(succ)] = 1;
-                /* Set parent of succ as v */
-                darray_replace(ctx->parent, vertex_get_index(succ), v);
+            for(index = 0; index < vertex_edge_count(v); index++) {
+                e = (Edge *)darray_index(vertex_get_edges(v), index);
+                succ = edge_get_target(e);
+
+                if(!ctx->discovered[vertex_get_index(succ)]) {
+                    /* Set parent of succ as v */
+                    darray_replace(ctx->parent, vertex_get_index(succ), v);
+                    stack_push(s, succ);
+                }
+
+                /* Process the edge */
+                if((!ctx->processed[vertex_get_index(succ)] &&
+                            darray_index(ctx->parent, vertex_get_index(v)) != succ) ||
+                        graph_is_directed(g)) {
+                    if(edge_fn != NULL) {
+                        edge_fn(e, ctx, userdata);
+
+                        if(ctx->stop_search) {
+                            goto done;
+                        }
+                    }
+                }
             }
         }
 
-        if(vertex_late_fn != NULL) {
-            vertex_late_fn(v, ctx, userdata);
+        /* v should still be at the top of the stack
+         * if there are no more descendants to visit
+         */
+        if(v == (Vertex *)stack_top(s)) {
+            stack_pop(s);
 
-            if(ctx->stop_search) {
-                goto done;
+            if(vertex_late_fn != NULL) {
+                vertex_late_fn(v, ctx, userdata);
+
+                if(ctx->stop_search) {
+                    goto done;
+                }
             }
+
+            /* Mark vertex v as processed */
+            ctx->processed[vertex_get_index(v)] = 1;
+            ctx->exit_time[vertex_get_index(v)] = time++;
         }
-
-        time++;
-
-        ctx->exit_time[vertex_get_index(v)] = time;
     }
 
 done:
@@ -448,13 +463,60 @@ int graph_is_bipartite(const Graph *g)
 }
 
 
-void _graph_find_back_edges_process_edge(Edge *e,
+EDGE_TYPE graph_classify_edge(const Edge *e, const GraphSearchCtx *ctx)
+{
+    Vertex *s, *t, *parent;
+
+    assert(e != NULL);
+    assert(ctx != NULL);
+
+    s = edge_get_source(e);
+    t = edge_get_target(e);
+    parent = darray_index(ctx->parent, vertex_get_index(t));
+
+    DBG("\nEdge from %lu to %lu\n", *(unsigned long *)vertex_get_data(s),
+            *(unsigned long *)vertex_get_data(t));
+    DBG("\tVertex %lu discovered: %d\n", *(unsigned long *)vertex_get_data(s),
+            ctx->discovered[vertex_get_index(s)]);
+    DBG("\tVertex %lu processed: %d\n", *(unsigned long *)vertex_get_data(s),
+            ctx->processed[vertex_get_index(s)]);
+    DBG("\tVertex %lu discovered: %d\n", *(unsigned long *)vertex_get_data(t),
+            ctx->discovered[vertex_get_index(t)]);
+    DBG("\tVertex %lu processed: %d\n", *(unsigned long *)vertex_get_data(t),
+            ctx->processed[vertex_get_index(t)]);
+
+    if(darray_index(ctx->parent, vertex_get_index(t)) == s) {
+        DBG("\tEdge type: TREE\n");
+        return EDGE_TYPE_TREE;
+    }
+    if(ctx->discovered[vertex_get_index(t)] &&
+            !ctx->processed[vertex_get_index(t)]) {
+        DBG("\tEdge type: BACK\n");
+        return EDGE_TYPE_BACK;
+    }
+    if(ctx->processed[vertex_get_index(t)] &&
+            (ctx->entry_time[vertex_get_index(t)] >
+             ctx->entry_time[vertex_get_index(s)])) {
+        DBG("\tEdge type: FORWARD\n");
+        return EDGE_TYPE_FORWARD;
+    }
+    if(ctx->processed[vertex_get_index(t)] &&
+            (ctx->entry_time[vertex_get_index(t)] <
+             ctx->entry_time[vertex_get_index(s)])) {
+        DBG("\tEdge type: CROSS\n");
+        return EDGE_TYPE_CROSS;
+    }
+
+    DBG("\tEdge type: UNKNOWN\n");
+    return EDGE_TYPE_UNKNOWN;
+}
+
+static void _graph_find_back_edges_process_edge(Edge *e,
         const GraphSearchCtx *ctx, void *userdata)
 {
     DList *back_edges = (DList *)userdata;
 
-    if(darray_index(ctx->parent, vertex_get_index(edge_get_source(e)))
-            != edge_get_target(e)) {
+    if(EDGE_TYPE_BACK == graph_classify_edge(e, ctx)) {
         dlist_append(back_edges, e);
     }
 }
@@ -463,7 +525,6 @@ DList* graph_find_back_edges(const Graph *g)
 {
     GraphSearchCtx *ctx;
     DList *back_edges;
-    unsigned long i;
 
     assert(g != NULL);
 
@@ -476,17 +537,63 @@ DList* graph_find_back_edges(const Graph *g)
 
     ctx = graph_depth_first_search(g, graph_get_vertex(g, 0),
             NULL, _graph_find_back_edges_process_edge, NULL, back_edges);
+    graph_search_ctx_free(ctx);
+
+    return back_edges;
+}
+
+
+static void _graph_topo_sort_process_vertex_late(Vertex *v,
+        const GraphSearchCtx *ctx, void *userdata)
+{
+    DList *sorted = (DList *)userdata;
+
+    dlist_prepend(sorted, v);
+}
+
+static void _graph_topo_sort_process_edge(Edge *e,
+        const GraphSearchCtx *ctx, void *userdata)
+{
+    if(EDGE_TYPE_BACK == graph_classify_edge(e, ctx)) {
+        fprintf(stderr, "Warning: found directed cycle. Graph is not a DAGn");
+    }
+}
+
+DList* graph_topological_sort(const Graph *g)
+{
+    GraphSearchCtx *ctx;
+    unsigned long i;
+    DList *sorted;
+
+    assert(g != NULL);
+
+    if(graph_is_undirected(g)) {
+        fprintf(stderr, "Cannot topologically sort an undirected graph\n");
+        return NULL;
+    }
+
+    sorted = dlist_create();
+    if(NULL == sorted) {
+        fprintf(stderr, "Failed to create topological sort list (%s:%d)\n",
+                __FUNCTION__, __LINE__);
+        return NULL;
+    }
+
+    ctx = graph_depth_first_search(g, graph_get_vertex(g, 0),
+            NULL, _graph_topo_sort_process_edge,
+            _graph_topo_sort_process_vertex_late, sorted);
 
     for(i = 1; i < graph_vertex_count(g); i++) {
+        printf("%lu\n", i);
         if(!ctx->discovered[i]) {
             graph_search_ctx_free(ctx);
-            ctx = graph_breadth_first_search(g, graph_get_vertex(g, i),
-                    NULL, _graph_find_back_edges_process_edge, NULL,
-                    back_edges);
+            ctx = graph_depth_first_search(g, graph_get_vertex(g, i),
+                    NULL, _graph_topo_sort_process_edge,
+                    _graph_topo_sort_process_vertex_late, sorted);
         }
     }
 
     graph_search_ctx_free(ctx);
 
-    return back_edges;
+    return sorted;
 }

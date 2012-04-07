@@ -61,6 +61,8 @@ typedef void (*GraphProcessVertexLateFn)(Vertex *v,
         const GraphSearchCtx *ctx, void *userdata);
 
 
+/* Undirected and Directed Graph Algorithms */
+
 void graph_search_ctx_free(GraphSearchCtx *ctx);
 
 GraphSearchCtx* graph_breadth_first_search(const Graph *g,
@@ -84,7 +86,23 @@ unsigned long* graph_connected_components(const Graph *g);
 
 int graph_is_bipartite(const Graph *g);
 
+
+/* Directed Graph Algorithms */
+
+typedef enum {
+    EDGE_TYPE_TREE,
+    EDGE_TYPE_FORWARD,
+    EDGE_TYPE_BACK,
+    EDGE_TYPE_CROSS,
+
+    EDGE_TYPE_UNKNOWN
+} EDGE_TYPE;
+
+EDGE_TYPE graph_classify_edge(const Edge *e, const GraphSearchCtx *ctx);
+
 DList* graph_find_back_edges(const Graph *g);
+
+DList* graph_topological_sort(const Graph *g);
 
 #if __cplusplus
 }
