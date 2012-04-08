@@ -555,7 +555,7 @@ static void _graph_topo_sort_process_edge(Edge *e,
         const GraphSearchCtx *ctx, void *userdata)
 {
     if(EDGE_TYPE_BACK == graph_classify_edge(e, ctx)) {
-        fprintf(stderr, "Warning: found directed cycle. Graph is not a DAGn");
+        fprintf(stderr, "Warning: found directed cycle. Graph is not a DAG.\n");
     }
 }
 
