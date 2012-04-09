@@ -104,6 +104,11 @@ DList* graph_find_back_edges(const Graph *g);
 
 DList* graph_topological_sort(const Graph *g);
 
+
+/* Weighted Graph Algorithms */
+
+DList* graph_mst_prim(const Graph *g, Vertex *start);
+
 #if __cplusplus
 }
 #endif

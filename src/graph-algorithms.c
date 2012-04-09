@@ -26,6 +26,7 @@
  */
 
 #include <assert.h>
+#include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,9 +37,6 @@
 #include <libcore/stack.h>
 #include <libcore/graph-algorithms.h>
 
-#define DEBUG   0
-#define DBG(...) \
-    do { if(DEBUG) fprintf(stderr, __VA_ARGS__); } while(0)
 
 /* These algorithms are loosely based on the ideas and descriptions
  * given in "The Algorithm Design Manual", Second Edition, by Steven
@@ -133,6 +131,7 @@ void graph_search_ctx_free(GraphSearchCtx *ctx)
     darray_free(ctx->parent);
 }
 
+/* Time Complexity: O(|V| + |E|) */
 GraphSearchCtx* graph_breadth_first_search(const Graph *g,
         const Vertex                *start,
         GraphProcessVertexEarlyFn   vertex_early_fn,
@@ -214,6 +213,7 @@ done:
     return ctx;
 }
 
+/* Time Complexity: O(|V| + |E|) */
 GraphSearchCtx* graph_depth_first_search(const Graph *g,
         const Vertex                *start,
         GraphProcessVertexEarlyFn   vertex_early_fn,
@@ -474,40 +474,24 @@ EDGE_TYPE graph_classify_edge(const Edge *e, const GraphSearchCtx *ctx)
     t = edge_get_target(e);
     parent = darray_index(ctx->parent, vertex_get_index(t));
 
-    DBG("\nEdge from %lu to %lu\n", *(unsigned long *)vertex_get_data(s),
-            *(unsigned long *)vertex_get_data(t));
-    DBG("\tVertex %lu discovered: %d\n", *(unsigned long *)vertex_get_data(s),
-            ctx->discovered[vertex_get_index(s)]);
-    DBG("\tVertex %lu processed: %d\n", *(unsigned long *)vertex_get_data(s),
-            ctx->processed[vertex_get_index(s)]);
-    DBG("\tVertex %lu discovered: %d\n", *(unsigned long *)vertex_get_data(t),
-            ctx->discovered[vertex_get_index(t)]);
-    DBG("\tVertex %lu processed: %d\n", *(unsigned long *)vertex_get_data(t),
-            ctx->processed[vertex_get_index(t)]);
-
     if(darray_index(ctx->parent, vertex_get_index(t)) == s) {
-        DBG("\tEdge type: TREE\n");
         return EDGE_TYPE_TREE;
     }
     if(ctx->discovered[vertex_get_index(t)] &&
             !ctx->processed[vertex_get_index(t)]) {
-        DBG("\tEdge type: BACK\n");
         return EDGE_TYPE_BACK;
     }
     if(ctx->processed[vertex_get_index(t)] &&
             (ctx->entry_time[vertex_get_index(t)] >
              ctx->entry_time[vertex_get_index(s)])) {
-        DBG("\tEdge type: FORWARD\n");
         return EDGE_TYPE_FORWARD;
     }
     if(ctx->processed[vertex_get_index(t)] &&
             (ctx->entry_time[vertex_get_index(t)] <
              ctx->entry_time[vertex_get_index(s)])) {
-        DBG("\tEdge type: CROSS\n");
         return EDGE_TYPE_CROSS;
     }
 
-    DBG("\tEdge type: UNKNOWN\n");
     return EDGE_TYPE_UNKNOWN;
 }
 
@@ -596,4 +580,113 @@ DList* graph_topological_sort(const Graph *g)
     graph_search_ctx_free(ctx);
 
     return sorted;
+}
+
+/* Prerequisite: g must be a connected, weighted, and undirected graph
+ *
+ * Time Complexity: O(|V|^2)
+ *
+ * TODO: Implement a Fibonacci heap, and change the implementation of
+ * Prim below to be an O(|E| + |V| * log |V|))
+ * */
+DList* graph_mst_prim(const Graph *g, Vertex *start)
+{
+    float *distance;
+    unsigned long i;
+    Vertex *v, *w;
+    DArray *edges;
+    int *intree;
+    float dist;
+    DList *ret;
+    Edge *e;
+
+    assert(g != NULL);
+    assert(start != NULL);
+
+    edges = darray_create_size(graph_vertex_count(g));
+    if(NULL == edges) {
+        fprintf(stderr, "Can't create edges DList(%s:%d)\n",
+                __FUNCTION__, __LINE__);
+        return NULL;
+    }
+
+    distance = malloc(sizeof(float) * graph_vertex_count(g));
+    if(NULL == distance) {
+        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
+        darray_free(edges);
+        return NULL;
+    }
+
+    intree = malloc(sizeof(int) * graph_vertex_count(g));
+    if(NULL == intree) {
+        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
+        darray_free(edges);
+        free(distance);
+        return NULL;
+    }
+
+    /* Initialize search state */
+    for(i = 0; i < graph_vertex_count(g); i++) {
+        intree[i] = 0;
+        distance[i] = FLT_MAX;
+        darray_replace(edges, i, NULL);
+    }
+
+    distance[vertex_get_index(start)] = 0.0;
+    v = start;
+
+    while(!intree[vertex_get_index(v)]) {
+        intree[vertex_get_index(v)] = 1;
+
+        /* Find the cheapest edge from the current
+         * vertex to each connected nontree vertex
+         */
+        for(i = 0; i < vertex_edge_count(v); i++) {
+            e = (Edge *)darray_index(vertex_get_edges(v), i);
+            w = edge_get_target(e);
+
+            if((distance[vertex_get_index(w)] > edge_get_weight(e)) &&
+                    !intree[vertex_get_index(w)]) {
+                distance[vertex_get_index(w)] = edge_get_weight(e);
+                darray_replace(edges, vertex_get_index(w), e);
+            }
+        }
+
+        /* Choose the lowest cost nontree vertex to add
+         * to the tree
+         */
+        v = graph_get_vertex(g, 0);
+        dist = FLT_MAX;
+        for(i = 0; i < graph_vertex_count(g); i++) {
+            w = graph_get_vertex(g, i); /* Reuse w */
+            if(!intree[vertex_get_index(w)] &&
+                    (dist > distance[vertex_get_index(w)])) {
+                dist = distance[vertex_get_index(w)];
+                darray_index(edges, vertex_get_index(w));
+                v = w;
+            }
+        }
+    }
+
+    free(intree);
+    free(distance);
+
+    /* Convert DArray to DList, then return */
+    ret = dlist_create();
+    if(NULL == ret) {
+        fprintf(stderr, "Can't create return DList(%s:%d)\n",
+                __FUNCTION__, __LINE__);
+        return NULL;
+    }
+
+    for(i = 0; i < darray_size(edges); i++) {
+        e = darray_index(edges, i);
+        if(e != NULL) {
+            dlist_append(ret, e);
+        }
+    }
+
+    darray_free(edges);
+
+    return ret;
 }
