@@ -465,14 +465,13 @@ int graph_is_bipartite(const Graph *g)
 
 EDGE_TYPE graph_classify_edge(const Edge *e, const GraphSearchCtx *ctx)
 {
-    Vertex *s, *t, *parent;
+    Vertex *s, *t;
 
     assert(e != NULL);
     assert(ctx != NULL);
 
     s = edge_get_source(e);
     t = edge_get_target(e);
-    parent = darray_index(ctx->parent, vertex_get_index(t));
 
     if(darray_index(ctx->parent, vertex_get_index(t)) == s) {
         return EDGE_TYPE_TREE;
