@@ -308,28 +308,28 @@ done:
     return ctx;
 }
 
-static void _graph_find_path(const Graph *g, GraphSearchCtx *ctx,
+static void _graph_find_path(const Graph *g, DArray *parent,
         Vertex *start, Vertex *end, DList *path)
 {
     if((start == end) || (NULL == end)) {
         dlist_append(path, start);
     } else {
         _graph_find_path(g,
-                ctx,
+                parent,
                 start,
-                darray_index(ctx->parent, vertex_get_index(end)),
+                darray_index(parent, vertex_get_index(end)),
                 path);
         dlist_append(path, end);
     }
 }
 
-DList* graph_find_path(const Graph *g, GraphSearchCtx *ctx,
+DList* graph_find_path(const Graph *g, DArray *parent,
         Vertex *start, Vertex* end)
 {
     DList *path;
 
     assert(g != NULL);
-    assert(ctx != NULL);
+    assert(parent != NULL);
     assert(start != NULL);
     assert(end != NULL);
 
@@ -340,7 +340,7 @@ DList* graph_find_path(const Graph *g, GraphSearchCtx *ctx,
         return NULL;
     }
 
-    _graph_find_path(g, ctx, start, end, path);
+    _graph_find_path(g, parent, start, end, path);
 
     return path;
 }
@@ -586,7 +586,7 @@ DList* graph_topological_sort(const Graph *g)
  * Time Complexity: O(|V|^2)
  *
  * TODO: Implement a Fibonacci heap, and change the implementation of
- * Prim below to be an O(|E| + |V| * log |V|))
+ * Prim's algorithm below to be an O(|E| + |V| * log |V|))
  * */
 DList* graph_mst_prim(const Graph *g, Vertex *start)
 {
@@ -604,7 +604,7 @@ DList* graph_mst_prim(const Graph *g, Vertex *start)
 
     edges = darray_create_size(graph_vertex_count(g));
     if(NULL == edges) {
-        fprintf(stderr, "Can't create edges DList(%s:%d)\n",
+        fprintf(stderr, "Can't create edges DArray(%s:%d)\n",
                 __FUNCTION__, __LINE__);
         return NULL;
     }
@@ -661,7 +661,6 @@ DList* graph_mst_prim(const Graph *g, Vertex *start)
             if(!intree[vertex_get_index(w)] &&
                     (dist > distance[vertex_get_index(w)])) {
                 dist = distance[vertex_get_index(w)];
-                darray_index(edges, vertex_get_index(w));
                 v = w;
             }
         }
@@ -688,4 +687,94 @@ DList* graph_mst_prim(const Graph *g, Vertex *start)
     darray_free(edges);
 
     return ret;
+}
+
+/* Time Complexity: O(|V|^2)
+ *
+ * TODO: Implement a Fibonacci heap, and change the implementation of
+ * Dijkstra's algorithm below to be an O(|E| + |V| * log |V|))
+ * */
+int graph_dijkstra(const Graph *g, Vertex *start, DArray **parent)
+{
+    float *distance;
+    unsigned long i;
+    Vertex *v, *w;
+    int *intree;
+    float dist;
+    Edge *e;
+
+    assert(g != NULL);
+    assert(start != NULL);
+
+    *parent = darray_create_size(graph_vertex_count(g));
+    if(NULL == *parent) {
+        fprintf(stderr, "Can't create DArray for parents (%s:%d)\n",
+                __FUNCTION__, __LINE__);
+        return -1;
+    }
+
+    distance = malloc(sizeof(float) * graph_vertex_count(g));
+    if(NULL == distance) {
+        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
+        darray_free(*parent);
+        *parent = NULL;
+        return -1;
+    }
+
+    intree = malloc(sizeof(int) * graph_vertex_count(g));
+    if(NULL == intree) {
+        fprintf(stderr, "Out of memory (%s:%d)\n", __FUNCTION__, __LINE__);
+        darray_free(*parent);
+        *parent = NULL;
+        free(distance);
+        return -1;
+    }
+
+    /* Initialize search state */
+    for(i = 0; i < graph_vertex_count(g); i++) {
+        intree[i] = 0;
+        distance[i] = FLT_MAX;
+        darray_replace(*parent, i, NULL);
+    }
+
+    distance[vertex_get_index(start)] = 0.0;
+    v = start;
+
+    while(!intree[vertex_get_index(v)]) {
+        intree[vertex_get_index(v)] = 1;
+
+        /* Find the cheapest edge from the current
+         * vertex to each connected nontree vertex
+         */
+        for(i = 0; i < vertex_edge_count(v); i++) {
+            e = (Edge *)darray_index(vertex_get_edges(v), i);
+            w = edge_get_target(e);
+
+            if(distance[vertex_get_index(w)] >
+                    (distance[vertex_get_index(v)] + edge_get_weight(e))) {
+                distance[vertex_get_index(w)] =
+                        distance[vertex_get_index(v)] + edge_get_weight(e);
+                darray_replace(*parent, vertex_get_index(w), v);
+            }
+        }
+
+        /* Choose the lowest cost nontree vertex to add
+         * to the tree
+         */
+        v = graph_get_vertex(g, 0);
+        dist = FLT_MAX;
+        for(i = 0; i < graph_vertex_count(g); i++) {
+            w = graph_get_vertex(g, i); /* Reuse w */
+            if(!intree[vertex_get_index(w)] &&
+                    (dist > distance[vertex_get_index(w)])) {
+                dist = distance[vertex_get_index(w)];
+                v = w;
+            }
+        }
+    }
+
+    free(intree);
+    free(distance);
+
+    return 0;
 }

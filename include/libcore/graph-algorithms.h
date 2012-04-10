@@ -79,7 +79,7 @@ GraphSearchCtx* graph_depth_first_search(const Graph *g,
         GraphProcessVertexLateFn    vertex_late_fn,
         void                        *userdata);
 
-DList* graph_find_path(const Graph *g, GraphSearchCtx *ctx,
+DList* graph_find_path(const Graph *g, DArray *parent,
         Vertex *start, Vertex* end);
 
 unsigned long* graph_connected_components(const Graph *g);
@@ -108,6 +108,8 @@ DList* graph_topological_sort(const Graph *g);
 /* Weighted Graph Algorithms */
 
 DList* graph_mst_prim(const Graph *g, Vertex *start);
+
+int graph_dijkstra(const Graph *g, Vertex *start, DArray **parent);
 
 #if __cplusplus
 }
