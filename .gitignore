@@ -16,3 +16,4 @@ test-heap
 test-priority-queue
 test-rbtree
 test-set
+test-graph

@@ -71,7 +71,8 @@ UNIT_TESTS= \
 	test-heap \
 	test-priority-queue \
 	test-rbtree \
-	test-set
+	test-set \
+	test-graph
 
 TEST_PROGRAMS= $(addprefix $(TEST_DIR)/, $(UNIT_TESTS))
 TEST_OBJS= $(addsuffix .o, $(TEST_PROGRAMS))
