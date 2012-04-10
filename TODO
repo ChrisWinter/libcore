@@ -1,10 +1,19 @@
+Data Structures to Add
+    * Union-find
+    * Fibonacci heap
+    * Hash table
+    * Bloom filter
+    * Skip list
+
 DArray
     * darray_prepend: reserve extra capacity at the front of
       the internal array to amortize the cost of prepending
       elements.
     * darray_slice: figure out the semantics of slices, and
       then add this functionality back.
-    * Add iterators.
+    * Add reverse
+    * Add iterators
+    * Add other functional programming-like operations (map, reduce, etc.)
 
 SList
     * Add sort
@@ -12,13 +21,40 @@ SList
     * Add concat
     * Add reverse
     * Add iterators
+    * Add other functional programming-like operations (map, reduce, etc.)
 
 DList
     * Add sort
     * Add merge
     * Add concat
     * Add reverse
-    * Add iterators
+    * Add other functional programming-like operations (map, reduce, etc.)
+
+Binary Heap
+    * Add decrease/increase key
+
+Priority Queue
+    * Add decrease/increase key
+
+RBTree
+    * Maintain pointers to min and max nodes to make iterator begin and end
+      operations O(1)
+
+String
+    * Add regular expressions
+    * Make API less clunky
+    * Add unit tests
+
+Graph
+    * Write unit tests
+    * Make GraphSearchCtx opaque?
+    * Maybe separate directed and undirected graphs into different types?
+    * Add algorithm for strongly connected components
+    * Change Prim and Dijkstra to use Fibonacci heaps
+    * Add Kruskal's and Boruvka's MST algorithms when union-find is done
+    * Investigate and add network flow algorithms (e.g., Ford-Fulkerson)
+    * Add Floyd-Warshall algorithm for all-pairs shortest path
+    * Add A* search
 
 Error Handling
     * Asserts: add build-time switch to turn asserts off. This
@@ -30,9 +66,16 @@ Memory Management
       data structures
 
 Build System
-    * Enhance to build shared and static libraries
     * Build-time configurations
         - Debug
         - Different backend implementations for
           particular ADTs, e.g., array-based stack
           instead of SList-based.
+
+Documentation
+    * Add doxygen-enabled comments to all files
+    * Add doxygen step to the build process
+
+Portability
+    * Test on 64-bit
+    * Test on Linux, OSX
