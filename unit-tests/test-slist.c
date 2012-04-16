@@ -412,6 +412,54 @@ void test_fixture_slist_remove_data(void)
     test_fixture_end();
 }
 
+
+void test_slist_reverse_empty(void)
+{
+    assert_true(test_slist == NULL);
+
+    test_slist = slist_create();
+
+    assert_true(test_slist != NULL);
+    assert_true(slist_is_empty(test_slist));
+
+    assert_true(slist_reverse(test_slist) == 0);
+
+    slist_free_all(test_slist, NULL);
+    test_slist = NULL;
+}
+
+void test_slist_reverse_existing(void)
+{
+    unsigned long *val;
+    unsigned long i, val_check;
+
+    val = NULL;
+    val_check = *(unsigned long *)slist_index(test_slist,
+            slist_size(test_slist) - 1);
+
+    assert_true(slist_reverse(test_slist) == 0);
+
+    for(i = 0; i < slist_size(test_slist); i++, val_check--) {
+        val = slist_index(test_slist, i);
+        assert_true(val != NULL);
+        assert_ulong_equal(*val, val_check);
+    }
+}
+
+void test_fixture_slist_reverse(void)
+{
+    test_fixture_start();
+
+    run_test(test_slist_reverse_empty);
+
+    fixture_setup(slist_setup_ints);
+    fixture_teardown(slist_teardown);
+
+    run_test(test_slist_reverse_existing);
+
+    test_fixture_end();
+}
+
 void all_tests(void)
 {
     test_fixture_slist_create();
@@ -421,6 +469,7 @@ void all_tests(void)
     test_fixture_slist_prepend();
     test_fixture_slist_remove_index();
     test_fixture_slist_remove_data();
+    test_fixture_slist_reverse();
 }
 
 int main(int argc, char *argv[])

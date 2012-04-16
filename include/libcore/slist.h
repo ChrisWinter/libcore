@@ -46,6 +46,8 @@ int     slist_insert        (SList *slist, unsigned long index, void *data);
 void*   slist_remove_index  (SList *slist, unsigned long index);
 int     slist_remove_data   (SList *slist, const void *data);
 void*   slist_index         (SList *slist, unsigned long index);
+int     slist_reverse       (SList *slist);
+
 int     slist_is_empty      (SList *slist);
 
 unsigned long slist_size    (SList *slist);

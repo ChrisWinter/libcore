@@ -294,3 +294,30 @@ unsigned long slist_size(SList *slist)
 
     return (slist->size);
 }
+
+/* Time Complexity: O(n) */
+int slist_reverse(SList *slist)
+{
+    struct _slist_node *node, *new_head, *next;
+
+    assert(slist != NULL);
+
+    if(slist_size(slist) < 2) {
+        return 0;
+    }
+
+    /* Adjust the tail pointer */
+    slist->tail = head(slist);
+
+    for(new_head = slist->nil, node = head(slist);
+            node != slist->nil;
+            new_head = node, node = next) {
+        next = node->next;
+        node->next = new_head;
+    }
+
+    /* Adjust the sentinel */
+    slist->nil->next = new_head;
+
+    return 0;
+}
