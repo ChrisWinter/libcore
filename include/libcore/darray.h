@@ -55,6 +55,7 @@ int     darray_concat       (DArray *darray1, DArray *darray2);
 int     darray_sort         (DArray *darray, CompareFn comparefn);
 int     darray_merge        (DArray *darray1, DArray *darray2,
                              CompareFn comparefn);
+int     darray_reverse      (DArray *darray);
 
 int     darray_is_sorted    (const DArray *darray, CompareFn comparefn);
 int     darray_is_empty     (const DArray *darray);

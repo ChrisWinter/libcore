@@ -458,6 +458,25 @@ int darray_merge(DArray *darray1, DArray *darray2, CompareFn comparefn)
     return merge(darray1, 0, middle, darray_size(darray1) - 1, comparefn);
 }
 
+/* Time Complexity: O(n / 2) */
+int darray_reverse(DArray *darray)
+{
+    unsigned long i;
+
+    assert(darray != NULL);
+
+    if(darray_size(darray) < 2) {
+        return 0;
+    }
+
+    for(i = 0; ((i != (darray_size(darray) - 1 - i)) &&
+                (i < (darray_size(darray) - 1 - i))); i++) {
+        darray_swap(darray, i, (darray_size(darray) - 1 - i));
+    }
+
+    return 0;
+}
+
 /* Complexity: O(n) */
 int darray_is_sorted(const DArray *darray, CompareFn comparefn)
 {
