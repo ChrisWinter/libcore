@@ -412,6 +412,57 @@ void test_fixture_dlist_remove_data(void)
     test_fixture_end();
 }
 
+
+void test_dlist_reverse_empty(void)
+{
+    assert_true(test_dlist == NULL);
+
+    test_dlist = dlist_create();
+
+    assert_true(test_dlist != NULL);
+    assert_true(dlist_is_empty(test_dlist));
+
+    assert_true(dlist_reverse(test_dlist) == 0);
+
+    dlist_free_all(test_dlist, NULL);
+    test_dlist = NULL;
+}
+
+void test_dlist_reverse_existing(void)
+{
+    unsigned long old_size, val_check;
+    unsigned long *val;
+    DListIterator *it;
+
+    old_size = dlist_size(test_dlist);
+
+    assert_true(dlist_reverse(test_dlist) == 0);
+
+    /* Verify */
+    val = NULL;
+    assert_true(old_size == dlist_size(test_dlist));
+
+    for(it = dlist_begin(test_dlist), val_check = 999;
+            it != NULL; it = dlist_next(it), val_check--) {
+        val = (unsigned long *)dlist_get_data(it);
+        assert_ulong_equal(val_check, *val);
+    }
+}
+
+void test_fixture_dlist_reverse(void)
+{
+    test_fixture_start();
+
+    run_test(test_dlist_reverse_empty);
+
+    fixture_setup(dlist_setup_ints);
+    fixture_teardown(dlist_teardown);
+
+    run_test(test_dlist_reverse_existing);
+
+    test_fixture_end();
+}
+
 void all_tests(void)
 {
     test_fixture_dlist_create();
@@ -421,6 +472,7 @@ void all_tests(void)
     test_fixture_dlist_prepend();
     test_fixture_dlist_remove_index();
     test_fixture_dlist_remove_data();
+    test_fixture_dlist_reverse();
 }
 
 int main(int argc, char *argv[])

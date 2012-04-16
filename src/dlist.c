@@ -286,6 +286,31 @@ void* dlist_index(DList *dlist, unsigned long index)
     return (node->data);
 }
 
+/* Time Complexity: O(n) */
+int dlist_reverse(DList *dlist)
+{
+    struct _dlist_node *node, *next;
+
+    assert(dlist != NULL);
+
+    if(dlist_size(dlist) < 2) {
+        return 0;
+    }
+
+    for(node = head(dlist); node != dlist->nil; node = next) {
+        next = node->next;
+        node->next = node->prev;
+        node->prev = next;
+    }
+
+    /* Adjust the sentinel */
+    node = dlist->nil->next;
+    dlist->nil->next = dlist->nil->prev;
+    dlist->nil->prev = node;
+
+    return 0;
+}
+
 /* Complexity: O(1) */
 int dlist_is_empty(DList *dlist)
 {

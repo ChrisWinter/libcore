@@ -47,6 +47,8 @@ int     dlist_insert        (DList *dlist, unsigned long index, void *data);
 void*   dlist_remove_index  (DList *dlist, unsigned long index);
 int     dlist_remove_data   (DList *dlist, const void *data);
 void*   dlist_index         (DList *dlist, unsigned long index);
+int     dlist_reverse       (DList *dlist);
+
 int     dlist_is_empty      (DList *dlist);
 
 unsigned long dlist_size    (DList *dlist);
