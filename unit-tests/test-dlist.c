@@ -26,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include <seatest.h>
 #include <libcore/dlist.h>
@@ -43,6 +44,19 @@ unsigned long* make_ulong_ptr(unsigned long value)
 
     return val;
 }
+
+/* a is greater than b if a is numerically less than b */
+int ulong_compare(const unsigned long *a, const unsigned long *b)
+{
+    if(*a < *b) {
+        return 1;
+    } else if(*a == *b) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
 void dlist_setup_ints(void)
 {
     unsigned long i, *val;
@@ -58,6 +72,27 @@ void dlist_setup_ints(void)
             dlist_append(test_dlist, val);
         }
     }
+
+    assert_true(dlist_size(test_dlist) == 1000);
+}
+
+void dlist_setup_ints_random(void)
+{
+    unsigned long i, *val;
+
+    test_dlist = dlist_create();
+
+    assert_true(test_dlist != NULL);
+    assert_true(dlist_is_empty(test_dlist));
+
+    for(i = 0; i < 1000; i++) {
+        val = make_ulong_ptr(rand() % 10000);
+        if(val != NULL) {
+            dlist_append(test_dlist, val);
+        }
+    }
+
+    assert_true(dlist_size(test_dlist) == 1000);
 }
 
 void dlist_teardown(void)
@@ -463,6 +498,53 @@ void test_fixture_dlist_reverse(void)
     test_fixture_end();
 }
 
+
+void test_dlist_mergesort_empty(void)
+{
+    assert_true(test_dlist == NULL);
+
+    test_dlist = dlist_create();
+
+    assert_true(test_dlist != NULL);
+    assert_true(dlist_is_empty(test_dlist));
+
+    assert_true(dlist_mergesort(test_dlist, (CompareFn)ulong_compare) == 0);
+
+    dlist_free_all(test_dlist, NULL);
+    test_dlist = NULL;
+}
+
+void test_dlist_mergesort_existing(void)
+{
+    unsigned long old_size;
+    /* DListIterator *it; */
+
+    assert_true(test_dlist != NULL);
+    assert_false(dlist_is_empty(test_dlist));
+
+    old_size = dlist_size(test_dlist);
+
+    assert_true(dlist_mergesort(test_dlist, (CompareFn)ulong_compare) == 0);
+
+    /* Verify */
+    assert_true(dlist_is_sorted(test_dlist, (CompareFn)ulong_compare));
+    assert_true(dlist_size(test_dlist) == old_size);
+}
+
+void test_fixture_dlist_mergesort(void)
+{
+    test_fixture_start();
+
+    run_test(test_dlist_mergesort_empty);
+
+    fixture_setup(dlist_setup_ints_random);
+    fixture_teardown(dlist_teardown);
+
+    run_test(test_dlist_mergesort_existing);
+
+    test_fixture_end();
+}
+
 void all_tests(void)
 {
     test_fixture_dlist_create();
@@ -473,9 +555,15 @@ void all_tests(void)
     test_fixture_dlist_remove_index();
     test_fixture_dlist_remove_data();
     test_fixture_dlist_reverse();
+    test_fixture_dlist_mergesort();
 }
 
 int main(int argc, char *argv[])
 {
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    srand(tv.tv_usec * tv.tv_sec);
+
     return seatest_testrunner(argc, argv, all_tests, NULL, NULL);
 }

@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <libcore/macros.h>
 #include <libcore/dlist.h>
 
 #define head(dl)    (dl)->nil->next
@@ -45,7 +46,6 @@ struct _dlist {
     struct _dlist_node *nil;
     unsigned long size;
 };
-
 
 static void _dlist_free(DList *dlist, int free_data, FreeFn freefn)
 {
@@ -135,10 +135,11 @@ DList* dlist_create(void)
         return NULL;
     }
 
-    sentinel->prev = sentinel;
-    sentinel->next = sentinel;
+    sentinel->dlist = new_list;
+    sentinel->prev  = sentinel;
+    sentinel->next  = sentinel;
 
-    new_list->nil  = sentinel;
+    new_list->nil = sentinel;
 
     new_list->size = 0;
 
@@ -309,6 +310,104 @@ int dlist_reverse(DList *dlist)
     dlist->nil->prev = node;
 
     return 0;
+}
+
+/* Space Complexity: O(1)
+ * Time Complexity: O(n)
+ */
+static void _dlist_merge(struct _dlist_node *start1, unsigned long len1,
+        struct _dlist_node *start2, unsigned long len2, CompareFn comparefn)
+{
+    struct _dlist_node *next;
+
+    while(((start1 != start1->dlist->nil) && (len1 > 0)) &&
+            ((start2 != start2->dlist->nil) && (len2 > 0))) {
+        if(comparefn(start1->data, start2->data) >= 0) {
+            start1 = start1->next;
+            len1--;
+        } else {
+            next = start2->next;
+
+            /* Splice out start2 */
+            start2->prev->next = start2->next;
+            start2->next->prev = start2->prev;
+
+            /* Splice start2 before start1 */
+            start2->prev = start1->prev;
+            start2->next = start1;
+            start1->prev->next = start2;
+            start1->prev = start2;
+
+            start2 = next;
+            len2--;
+        }
+    }
+}
+
+/* Space Complexity: O(1)
+ * Time Complexity: O(n log n), worst-case
+ *
+ * TODO Verify the time complexity. This was an experiment to try
+ * implementing a bottom-up mergesort, but I wonder if the need to
+ * advance s1 from the head of the list to item j on each inner
+ * loop iteration increases the time complexity or does it just add
+ * a constant factor? Need to investigate.
+ */
+int dlist_mergesort(DList *dlist, CompareFn comparefn)
+{
+    struct _dlist_node *s1, *s2;
+    unsigned long i, j, idx;
+
+    assert(dlist != NULL);
+    assert(comparefn != NULL);
+
+    if(dlist_size(dlist) < 2) {
+        return 0;
+    }
+
+    for(i = 1; i < dlist_size(dlist); i *= 2) {
+        for(j = 0; j < (dlist_size(dlist) - i); j += (2 * i)) {
+            /* Advance s1 to item j */
+            for(s1 = head(dlist), idx = j; idx > 0; s1 = s1->next, idx--) {
+                /* Empty */
+            }
+
+            /* Advance s2 to item j+i */
+            for(s2 = s1, idx = i; idx > 0; s2 = s2->next, idx--) {
+                /* Empty */
+            }
+
+            _dlist_merge(s1, i, s2, MIN(dlist_size(dlist) - i, i), comparefn);
+        }
+    }
+
+    return 0;
+}
+
+/* Time Complexity: O(n) */
+int dlist_is_sorted(DList *dlist, CompareFn comparefn)
+{
+    DListIterator *it;
+
+    assert(dlist != NULL);
+    assert(comparefn != NULL);
+
+    /* Is an empty list sorted? */
+    if(dlist_is_empty(dlist)) {
+        return 0;
+    }
+
+    if(dlist_size(dlist) < 2) {
+        return 1;
+    }
+
+    for(it = dlist_begin(dlist); it != dlist_end(dlist); it = dlist_next(it)) {
+        if(comparefn(dlist_get_data(it), dlist_get_data(dlist_next(it))) < 0) {
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
 /* Complexity: O(1) */
