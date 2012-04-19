@@ -348,14 +348,14 @@ static void _dlist_merge(struct _dlist_node *start1, unsigned long len1,
  * Time Complexity: O(n log n), worst-case
  *
  * TODO Verify the time complexity. This was an experiment to try
- * implementing a bottom-up mergesort, but I wonder if the need to
- * advance s1 from the head of the list to item j on each inner
- * loop iteration increases the time complexity or does it just add
- * a constant factor? Need to investigate.
+ * implementing a bottom-up mergesort, but, even after eliminating
+ * the need to advance s1 from the head of the list to item j on
+ * each inner loop iteration (which yielded a ~50% speed increase),
+ * the time complexity should still be more carefully considered.
  */
 int dlist_mergesort(DList *dlist, CompareFn comparefn)
 {
-    struct _dlist_node *s1, *s2;
+    struct _dlist_node *s1, *s2, *next;
     unsigned long i, j, idx;
 
     assert(dlist != NULL);
@@ -366,14 +366,15 @@ int dlist_mergesort(DList *dlist, CompareFn comparefn)
     }
 
     for(i = 1; i < dlist_size(dlist); i *= 2) {
-        for(j = 0; j < (dlist_size(dlist) - i); j += (2 * i)) {
-            /* Advance s1 to item j */
-            for(s1 = head(dlist), idx = j; idx > 0; s1 = s1->next, idx--) {
+        for(j = 0, next = head(dlist), s1 = next;
+                j < (dlist_size(dlist) - i); j += (2 * i), s1 = next) {
+            /* Advance s2 to item j+i */
+            for(s2 = s1, idx = i; idx > 0; s2 = s2->next, idx--) {
                 /* Empty */
             }
 
-            /* Advance s2 to item j+i */
-            for(s2 = s1, idx = i; idx > 0; s2 = s2->next, idx--) {
+            /* Advance next to item j+2*i */
+            for(next = s2, idx = i; idx > 0; next = next->next, idx--) {
                 /* Empty */
             }
 
