@@ -55,7 +55,7 @@ void set_free(Set *set)
 }
 
 /* Time Complexity: O(|set|)
- * Space Complexity: O(2 * log(|set|))
+ * Space Complexity: O(log(|set|))
  */
 void set_free_all(Set *set, FreeFn freefn)
 {
