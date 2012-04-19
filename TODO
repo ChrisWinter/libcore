@@ -42,6 +42,7 @@ String
     * Add unit tests
 
 Graph
+    * Keep a separate in-edge list for each node?
     * Write unit tests
     * Make GraphSearchCtx opaque?
     * Maybe separate directed and undirected graphs into different types?
